@@ -1,0 +1,13 @@
+/* frontend/app/styles/global.css */
+:root {
+  --bg: #000;
+  --white: #fff;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--white);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
