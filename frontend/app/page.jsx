@@ -1,7 +1,11 @@
+import CategoriesCarousel from "./components/CategoriesCarousel.jsx"
+import DeliverySection from "./components/DeliverySection.jsx";
+
 export default function Home() {
   return (
     <main>
-      <h1>Welcome to GIGA STORE</h1>
+      <CategoriesCarousel />
+      <DeliverySection />
     </main>
   );
 }
