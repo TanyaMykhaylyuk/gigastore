@@ -14,25 +14,159 @@ html, body {
 
 .site-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  background: #000;
-  border-bottom: 1px solid #333;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--muted-2);
+  background: rgba(0,0,0,0.98);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(6px);
 }
-.site-header__left .brand {
-  font-size: 24px;
+
+.site-header__left { display:flex; align-items:center; gap:20px; }
+
+.brand {
+  font-size:48px;
+  font-weight:800;
+  letter-spacing:1px;
+  margin:0;
+  line-height:1;
+  position:relative;
   color: var(--white);
+  -webkit-text-fill-color: var(--white);
+  -webkit-text-stroke-width: 1.6px;
+  -webkit-text-stroke-color: var(--neon);
+  text-shadow:
+    0 0 6px rgba(0,140,255,0.95),
+    0 0 12px rgba(0,140,255,0.65),
+    0 0 24px rgba(0,140,255,0.35),
+    0 6px 18px rgba(0,0,0,0.6);
+  transition: transform 160ms ease, text-shadow 160ms ease;
 }
-.site-header__right a {
-  margin-left: 16px;
+.brand:hover {
+  transform: translateY(-2px);
+  text-shadow:
+    0 0 8px rgba(0,140,255,1),
+    0 0 18px rgba(0,140,255,0.8),
+    0 0 36px rgba(0,140,255,0.45),
+    0 8px 28px rgba(0,0,0,0.6);
+}
+
+.site-header__right { display:flex; gap:12px; align-items:center; }
+
+.btn {
+  padding:8px 12px;
+  border-radius:10px;
+  background:transparent;
+  border:1px solid var(--muted-2);
+  color:var(--white);
+  text-decoration:none;
+  font-weight:700;
+  font-size:14px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  transition: all 0.2s ease;
+}
+
+.btn-icon { width:18px; height:18px; display:inline-block; }
+
+.btn--cart {
+  border: 2px solid var(--neon);
+  box-shadow: 0 0 6px var(--neon);
   color: var(--white);
-  text-decoration: none;
+  font-weight: 800;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 10px;
 }
+.btn--cart:hover,
+.btn--cart:focus {
+  box-shadow: 0 0 12px var(--neon);
+  transform: translateY(-2px);
+}
+
+@media (max-width:768px){
+  .brand{ font-size:34px; }
+  .site-header{ padding:10px 14px; }
+  .show-all-btn{ padding:14px 28px; font-size:16px; }
+  .products-grid{ grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+
 .site-footer {
-  text-align: center;
-  padding: 16px;
-  border-top: 1px solid #333;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 28px 40px;
   color: var(--white);
+  background: var(--bg);
+  border-top: 1px solid var(--muted-2);
+  box-shadow: 0 -6px 24px rgba(0,0,0,0.6);
+  flex-shrink: 0;
+}
+
+.site-footer__left {
+  flex: 1 1 360px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8px 12px;
+}
+.site-footer__left h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--white);
+}
+.site-footer__left .contact-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.site-footer__left .contact-line {
+  margin: 0;
+  font-size: 18px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+.site-footer__left a {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 700;
+}
+.site-footer__left a:hover { color: var(--white); }
+
+.site-footer__right {
+  flex: 1 1 420px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.site-footer__right h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--white);
+}
+.map-wrapper {
+  width: 100%;
+  height: 260px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.map-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 
 .carousel-3d-container {
@@ -82,6 +216,7 @@ html, body {
   0%, 100% { transform: translateY(-50%) translateX(0); }
   50% { transform: translateY(-50%) translateX(8px); }
 }
+
 .category-card {
   width: 200px;
   height: 260px;
@@ -118,12 +253,12 @@ html, body {
   backdrop-filter: blur(4px);
   background: linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0));
 }
+
 @media (max-width: 768px) {
   .carousel-3d-container { height: 350px; }
   .category-card { width: 150px; height: 200px; }
   .category-card img { width: 55%; height: 55%; }
 }
-
 
 .delivery-section {
   position: relative;
