@@ -324,6 +324,110 @@ html, body {
   cursor:pointer;
 }
 
+.trade-in-section {
+  position: relative;
+  text-align: center;
+  margin: 60px 0;
+  padding: 80px 20px;
+  overflow: hidden;
+  min-height: 700px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.trade-in-section img {
+  width: 320px;
+  max-width: 40%;
+  opacity: 0.9;
+  position: absolute;
+}
+
+.img-left {
+  top: 40px;
+  left: 0;
+  transform: translateX(-100%);
+  transition: transform 0.8s ease-out;
+}
+.img-left.slide-in { transform: translateX(0); }
+
+.img-right {
+  right: 0;
+  bottom: 40px;
+  transform: translateX(100%);
+  transition: transform 0.8s ease-out;
+}
+.img-right.slide-in { transform: translateX(0); }
+
+.trade-form-container {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 50px;
+  border-radius: 16px;
+  transform: translateY(100%);
+  transition: transform 0.8s ease-out;
+  max-width: 650px;
+  width: 100%;
+  font-size: 18px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+}
+.trade-form-container.slide-in { transform: translateY(0); }
+
+.trade-form-container input,
+.trade-form-container select {
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: transparent;
+  color: #fff;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.trade-form-container label {
+  font-weight: bold;
+  display: block;
+  margin-top: 15px;
+  text-align: left;
+}
+
+.submit-btn {
+  margin-top: 25px;
+  padding: 16px 32px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 8px;
+  background: transparent;
+  border: 2px solid rgba(0,140,255,0.95);
+  color: #fff;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+.submit-btn:hover { box-shadow: 0 0 16px rgba(0,140,255,0.95); }
+
+.trade-form-container .submit-btn {
+  margin-top: 18px;
+  align-self: stretch;
+  padding: 12px 18px;
+  font-weight: 800;
+}
+
+.welcome-banner { 
+  transition: opacity 500ms ease-in-out; 
+  opacity: 0; 
+}
+
+
+@media (max-width: 640px) {
+  .trade-form-container { padding: 28px; }
+  .trade-in-section { padding: 40px 12px; min-height: 520px; }
+  .img-left, .img-right { display: none; }
+}
+
+
+
 .products-grid-wrapper { padding: 24px 12px; max-width:1200px; margin: 0 auto; }
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
 

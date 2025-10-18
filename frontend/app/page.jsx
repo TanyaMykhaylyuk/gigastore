@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import CategoriesCarousel from "./components/CategoriesCarousel.jsx";
 import DeliverySection from "./components/DeliverySection.jsx";
 import ProductCard from "./components/ProductCard.jsx";
+import TradeInSection from "./components/TradeInSection.jsx";
 
 export default function Home() {
   const [expanded, setExpanded] = useState(false);
@@ -76,7 +77,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-
+         <TradeInSection />
       <DeliverySection />
     </main>
   );
