@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import productsRoutes from "./routes/products.js";
 import tradeinRoutes from "./routes/tradein.js"; 
+import repairRoutes from "./routes/repair.js"
 
 const app = express();
 const PORT = process.env.PORT || 5011;
@@ -17,6 +18,8 @@ app.use(
 
 app.use("/products", productsRoutes);
 app.use("/tradein", tradeinRoutes);
+app.use("/repair", repairRoutes);
+
 
 app.get("/", (req, res) => res.send("Backend (products API) running"));
 
