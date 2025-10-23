@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import authRoutes from "./routes/auth.js";
 import productsRoutes from "./routes/products.js";
 import tradeinRoutes from "./routes/tradein.js"; 
 import repairRoutes from "./routes/repair.js"
@@ -16,6 +17,7 @@ app.use(
   })
 );
 
+app.use("/auth", authRoutes); 
 app.use("/products", productsRoutes);
 app.use("/tradein", tradeinRoutes);
 app.use("/repair", repairRoutes);
