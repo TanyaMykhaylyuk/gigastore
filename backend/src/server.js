@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.js";
 import productsRoutes from "./routes/products.js";
 import tradeinRoutes from "./routes/tradein.js"; 
 import repairRoutes from "./routes/repair.js"
+import cartRoutes from "./routes/cart.js";
 
 const app = express();
 const PORT = process.env.PORT || 5011;
@@ -21,6 +22,7 @@ app.use("/auth", authRoutes);
 app.use("/products", productsRoutes);
 app.use("/tradein", tradeinRoutes);
 app.use("/repair", repairRoutes);
+app.use("/cart", cartRoutes);
 
 
 app.get("/", (req, res) => res.send("Backend (products API) running"));
