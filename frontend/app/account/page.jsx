@@ -46,11 +46,11 @@ export default function AccountPage() {
   const [orders, setOrders] = useState([]);
 
   const computedName = useMemo(() => {
-    if (displayName && String(displayName).trim()) return String(displayName).trim();
+   if (displayName && String(displayName).trim()) return String(displayName).trim();
 
-    if (user && typeof user.firstName === "string" && user.firstName.trim()) return user.firstName.trim();
+   if (user && typeof user.firstName === "string" && user.firstName.trim()) return user.firstName.trim();
 
-    const possible = (user && (user.name || user.fullName || user.displayName)) || "";
+   const possible = (user && (user.name || user.fullName || user.displayName)) || "";
     if (possible && typeof possible === "string" && possible.trim() && !looksLikeEmail(possible)) {
       const p = parseFullName(possible);
       return p.first || p.last || "";
@@ -64,7 +64,7 @@ export default function AccountPage() {
         const parsed = JSON.parse(storedUser);
         if (parsed && parsed.firstName && String(parsed.firstName).trim()) return String(parsed.firstName).trim();
 
-        if (parsed && parsed.name && typeof parsed.name === "string" && !looksLikeEmail(parsed.name)) {
+       if (parsed && parsed.name && typeof parsed.name === "string" && !looksLikeEmail(parsed.name)) {
           const p = parseFullName(parsed.name);
           return p.first || p.last || "";
         }

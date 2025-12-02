@@ -137,7 +137,7 @@ export function AuthProvider({ children }) {
     try {
       const incomingHasUserFields = hasAnyUserField(u);
 
-   const parsedName = extractNameParts(u || {});
+    const parsedName = extractNameParts(u || {});
       const canonical = JSON.stringify({
         token: t || null,
         hasUserFields: incomingHasUserFields,

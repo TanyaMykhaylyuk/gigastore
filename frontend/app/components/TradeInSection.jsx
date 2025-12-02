@@ -35,7 +35,7 @@ export default function TradeInSection() {
     }
     return "";
   };
- 
+
   useEffect(() => {
     let mounted = true;
 
@@ -158,7 +158,7 @@ export default function TradeInSection() {
 
     setSending(true);
     try {
-      const apiBase = (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.trim()) || window.location.origin;
+     const apiBase = (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.trim()) || window.location.origin;
       const url = `${apiBase.replace(/\/+$/,"")}/tradein`;
 
       const res = await fetch(url, {
@@ -180,7 +180,7 @@ export default function TradeInSection() {
           technicalCondition: "working",
         });
         setErrors({});
-        if (body?.warning) {
+       if (body?.warning) {
           setServerMessage("Request stored, but email notification failed (admin will be informed).");
         } else {
           setServerMessage("Request sent successfully.");

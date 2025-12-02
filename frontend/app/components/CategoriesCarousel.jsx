@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from "react";
-import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import "../styles/carousel.css";
 import CategoryCard from "./CategoryCard";
-import "../styles/carousel.css"
+import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 
 const categories = [
   { slug: "phones", title: "Phones", img: "/categories/phones.png" },
@@ -16,6 +16,7 @@ const categories = [
 export default function CategoriesCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [translateZ, setTranslateZ] = useState(400);
+
   const slideCount = categories.length;
   const angle = 360 / slideCount;
 
@@ -41,20 +42,24 @@ export default function CategoriesCarousel() {
       <button className="arrow left" onClick={prevSlide} aria-label="Previous">
         <FiArrowLeft size={24} />
       </button>
-      <div className="carousel-3d">
+
+      <div className="carousel-3d" aria-hidden="true">
         {categories.map((c, idx) => {
           const rotation = idx * angle - activeIndex * angle;
           return (
             <div
               key={c.slug}
               className="carousel-slide"
-              style={{ transform: `translate(-50%, -50%) rotateY(${rotation}deg) translateZ(${translateZ}px)` }}
+              style={{
+                transform: `translate(-50%, -50%) rotateY(${rotation}deg) translateZ(${translateZ}px)`,
+              }}
             >
               <CategoryCard slug={c.slug} title={c.title} img={c.img} />
             </div>
           );
         })}
       </div>
+
       <button className="arrow right" onClick={nextSlide} aria-label="Next">
         <FiArrowRight size={24} />
       </button>
