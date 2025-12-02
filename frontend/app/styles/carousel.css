@@ -35,8 +35,8 @@
   border-radius: 50%;
   cursor: pointer;
 
-
   color: var(--neon);
+
   transition: background 0.3s ease, color 0.3s ease;
 }
 

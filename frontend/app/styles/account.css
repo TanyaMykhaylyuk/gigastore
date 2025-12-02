@@ -70,7 +70,7 @@
   -webkit-overflow-scrolling: touch;
 
   overflow-y: auto;
-  padding-right: 22px;
+  padding-right: 22px; 
   padding-left: 6px;
 
   max-height: calc(76vh - 70px);

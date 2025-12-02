@@ -6,7 +6,7 @@ import ProductCard from "../components/ProductCard";
 
 
 export default function CatalogClient({ products = [], category = "" }) {
-  const [sortBy, setSortBy] = useState("default"); 
+  const [sortBy, setSortBy] = useState("default");
   const [searchTerm, setSearchTerm] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
