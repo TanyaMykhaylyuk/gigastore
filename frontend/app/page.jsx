@@ -150,12 +150,15 @@ export default function Home() {
     setError(null);
     setNoMorePages(false);
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?limit=45&page=1`)
+    const ac = new AbortController();
+
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?limit=45&page=1`, { signal: ac.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
       .then((data) => {
+        if (ac.signal.aborted) return;
         const rows = Array.isArray(data) ? data : data.rows ?? [];
         const shuffled = rows.slice().sort(() => Math.random() - 0.5);
         setProducts(shuffled);
@@ -174,11 +177,18 @@ export default function Home() {
 
         if (loadedPages < 1) setNoMorePages(true);
       })
-      .catch((err) => setError(err.message || "Load error"))
+      .catch((err) => {
+        if (err.name === "AbortError") return;
+        setError(err.message || "Load error");
+      })
       .finally(() => {
-        setLoading(false);
-        setHasFetched(true);
+        if (!ac.signal.aborted) {
+          setLoading(false);
+          setHasFetched(true);
+        }
       });
+
+    return () => ac.abort();
   }, [expanded]);
 
   async function loadPage(page) {

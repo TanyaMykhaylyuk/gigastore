@@ -6,8 +6,25 @@ import "../styles/account.css";
 import { useAuth } from "../context/AuthContext";
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneRe = /^\d+$/;
 const passwordRe = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
+
+function validatePhone(value) {
+  if (!value || typeof value !== "string") return { valid: false };
+  const trimmed = value.trim();
+  if (/[a-zA-Z]/.test(trimmed)) return { valid: false, msg: "Phone must not contain letters." };
+  const digits = trimmed.replace(/\D/g, "");
+  if (digits.length < 7) return { valid: false, msg: "Phone must have at least 7 digits." };
+  if (digits.length > 15) return { valid: false, msg: "Phone number is too long." };
+  return { valid: true };
+}
+
+function validateEmail(value) {
+  if (!value || typeof value !== "string") return { valid: false };
+  const trimmed = value.trim().toLowerCase();
+  if (!emailRe.test(trimmed)) return { valid: false, msg: "Invalid email format." };
+  if (trimmed.length > 254) return { valid: false, msg: "Email is too long." };
+  return { valid: true };
+}
 
 function looksLikeEmail(v) {
   return typeof v === "string" && v.includes("@");
@@ -194,8 +211,14 @@ export default function AccountPage() {
     if (!formData.firstName.trim()) errors.firstName = "First name is required.";
     if (!formData.lastName.trim()) errors.lastName = "Last name is required.";
     if (!formData.email.trim()) errors.email = "Email is required.";
-    else if (!emailRe.test(formData.email.trim())) errors.email = "Invalid email format.";
-    if (formData.phone && !phoneRe.test(formData.phone.trim())) errors.phone = "Phone must contain digits only.";
+    else {
+      const em = validateEmail(formData.email);
+      if (!em.valid) errors.email = em.msg;
+    }
+    if (formData.phone) {
+      const ph = validatePhone(formData.phone);
+      if (!ph.valid) errors.phone = ph.msg;
+    }
     if (!formData.password) errors.password = "Password is required.";
     else if (!passwordRe.test(formData.password)) errors.password = "Password must be at least 6 characters and include letters and digits.";
     if (formData.password !== formData.confirmPassword) errors.confirmPassword = "Passwords do not match.";
@@ -248,7 +271,10 @@ export default function AccountPage() {
   const validateLoginClient = () => {
     const errors = {};
     if (!formData.email.trim()) errors.email = "Email is required.";
-    else if (!emailRe.test(formData.email.trim())) errors.email = "Invalid email format.";
+    else {
+      const em = validateEmail(formData.email);
+      if (!em.valid) errors.email = em.msg;
+    }
     if (!formData.password) errors.password = "Password is required.";
     return errors;
   };

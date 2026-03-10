@@ -3,12 +3,42 @@ import dotenv from "dotenv";
 import { sendMail } from "../lib/mail.js";
 dotenv.config();
 
+const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validatePhone(value) {
+  if (!value || typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (/[a-zA-Z]/.test(trimmed)) return false;
+  const digits = trimmed.replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15;
+}
+
+function validateEmail(value) {
+  if (!value || typeof value !== "string" || value.length > 254) return false;
+  return emailRe.test(value.trim().toLowerCase());
+}
+
 export async function createCheckoutSession(req, res) {
   try {
     const { cartItems, firstName, lastName, phone, email, address } = req.body;
 
     if (!Array.isArray(cartItems) || cartItems.length === 0) {
       return res.status(400).json({ error: "Cart is empty" });
+    }
+    if (!firstName || !firstName.toString().trim()) {
+      return res.status(400).json({ error: "First name is required" });
+    }
+    if (!lastName || !lastName.toString().trim()) {
+      return res.status(400).json({ error: "Last name is required" });
+    }
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({ error: "Valid email is required" });
+    }
+    if (!phone || !validatePhone(phone)) {
+      return res.status(400).json({ error: "Valid phone number is required" });
+    }
+    if (!address || !address.toString().trim()) {
+      return res.status(400).json({ error: "Shipping address is required" });
     }
 
     if (!process.env.STRIPE_SECRET_KEY) {

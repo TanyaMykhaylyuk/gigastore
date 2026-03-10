@@ -124,9 +124,7 @@ ${itemsText}
 An account has been created for you at GIGA STORE after your recent purchase.
 
 Email: ${userEmail}
-Password: ${generatedPassword}
-
-Please log in and change your password.`,
+Password: ${generatedPassword}`,
               });
             } catch (userMailErr) {
               console.error("[webhook] Failed to send user account email:", userMailErr);

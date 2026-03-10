@@ -1,6 +1,14 @@
 import pool from "../lib/db.js";
 import { sendMail } from "../lib/mail.js";
 
+function validatePhone(value) {
+  if (!value || typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (/[a-zA-Z]/.test(trimmed)) return false;
+  const digits = trimmed.replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15;
+}
+
 export async function createTradeIn(req, res) {
   try {
     const {
@@ -10,6 +18,15 @@ export async function createTradeIn(req, res) {
 
     if (!firstName || !lastName || !phone || !model || !memory) {
       return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+    if (!validatePhone(phone)) {
+      return res.status(400).json({ success: false, error: "Invalid phone number" });
+    }
+    if (firstName.toString().length > 100 || lastName.toString().length > 100) {
+      return res.status(400).json({ success: false, error: "Name fields are too long" });
+    }
+    if (model.toString().length > 100 || memory.toString().length > 50) {
+      return res.status(400).json({ success: false, error: "Model or memory value is too long" });
     }
 
     const query = `
