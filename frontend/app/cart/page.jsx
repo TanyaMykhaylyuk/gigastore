@@ -7,7 +7,24 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneRe = /^\d+$/;
+
+function validatePhone(value) {
+  if (!value || typeof value !== "string") return { valid: false };
+  const trimmed = value.trim();
+  if (/[a-zA-Z]/.test(trimmed)) return { valid: false, msg: "Phone must not contain letters." };
+  const digits = trimmed.replace(/\D/g, "");
+  if (digits.length < 7) return { valid: false, msg: "Phone must have at least 7 digits." };
+  if (digits.length > 15) return { valid: false, msg: "Phone number is too long." };
+  return { valid: true };
+}
+
+function validateEmail(value) {
+  if (!value || typeof value !== "string") return { valid: false };
+  const trimmed = value.trim().toLowerCase();
+  if (!emailRe.test(trimmed)) return { valid: false, msg: "Invalid email format." };
+  if (trimmed.length > 254) return { valid: false, msg: "Email is too long." };
+  return { valid: true };
+}
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
@@ -99,12 +116,21 @@ export default function CartPage() {
   const validateCartClient = () => {
     const errors = {};
     if (!address.trim()) errors.address = "Shipping address is required.";
+    if (address.length > 500) errors.address = "Address is too long.";
     if (!firstName.trim()) errors.firstName = "First name is required.";
+    if (firstName.length > 100) errors.firstName = "First name is too long.";
     if (!lastName.trim()) errors.lastName = "Last name is required.";
+    if (lastName.length > 100) errors.lastName = "Last name is too long.";
     if (!email.trim()) errors.email = "Email is required.";
-    else if (!emailRe.test(email.trim())) errors.email = "Invalid email format.";
+    else {
+      const em = validateEmail(email);
+      if (!em.valid) errors.email = em.msg;
+    }
     if (!phone.trim()) errors.phone = "Phone number is required.";
-    else if (!phoneRe.test(phone.trim())) errors.phone = "Phone must contain digits only.";
+    else {
+      const ph = validatePhone(phone);
+      if (!ph.valid) errors.phone = ph.msg;
+    }
     return errors;
   };
 

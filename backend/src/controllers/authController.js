@@ -8,8 +8,20 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneRe = /^\d+$/;
 const passwordRe = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
+
+function validatePhone(value) {
+  if (!value || typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (/[a-zA-Z]/.test(trimmed)) return false;
+  const digits = trimmed.replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15;
+}
+
+function validateEmail(value) {
+  if (!value || typeof value !== "string" || value.length > 254) return false;
+  return emailRe.test(value.trim().toLowerCase());
+}
 
 const ACCESS_EXPIRES = "1d";
 const REFRESH_EXPIRES_SECONDS = 30 * 24 * 60 * 60;
@@ -33,8 +45,8 @@ export async function register(req, res) {
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ error: "Please fill in required fields." });
     }
-    if (!emailRe.test(email)) return res.status(400).json({ error: "Invalid email format." });
-    if (phone && !phoneRe.test(phone)) return res.status(400).json({ error: "Phone must contain digits only." });
+    if (!validateEmail(email)) return res.status(400).json({ error: "Invalid email format." });
+    if (phone && !validatePhone(phone)) return res.status(400).json({ error: "Invalid phone number." });
     if (!passwordRe.test(password)) return res.status(400).json({ error: "Password too weak." });
 
     const { rows: exists } = await pool.query("SELECT id FROM users WHERE email = $1", [email.toLowerCase()]);
@@ -74,7 +86,7 @@ export async function login(req, res) {
   try {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: "Email and password required" });
-    if (!emailRe.test(email)) return res.status(400).json({ error: "Invalid email" });
+    if (!validateEmail(email)) return res.status(400).json({ error: "Invalid email" });
 
     const { rows } = await pool.query(
       "SELECT id, password, first_name, last_name, email, phone FROM users WHERE email = $1",

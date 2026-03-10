@@ -5,7 +5,24 @@ import "../styles/repair.css";
 import { useAuth } from "../context/AuthContext";
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneRe = /^\d+$/;
+
+function validatePhone(value) {
+  if (!value || typeof value !== "string") return { valid: false };
+  const trimmed = value.trim();
+  if (/[a-zA-Z]/.test(trimmed)) return { valid: false, msg: "Phone must not contain letters." };
+  const digits = trimmed.replace(/\D/g, "");
+  if (digits.length < 7) return { valid: false, msg: "Phone must have at least 7 digits." };
+  if (digits.length > 15) return { valid: false, msg: "Phone number is too long." };
+  return { valid: true };
+}
+
+function validateEmail(value) {
+  if (!value || typeof value !== "string") return { valid: false };
+  const trimmed = value.trim().toLowerCase();
+  if (!emailRe.test(trimmed)) return { valid: false, msg: "Invalid email format." };
+  if (trimmed.length > 254) return { valid: false, msg: "Email is too long." };
+  return { valid: true };
+}
 
 export default function RepairPage() {
   const sectionRef = useRef(null);
@@ -66,11 +83,19 @@ export default function RepairPage() {
     const selectedDevices = Object.entries(devices).filter(([_, val]) => val);
     if (selectedDevices.length === 0) errors.devices = "Please select at least one device.";
     if (!model.trim()) errors.model = "Device model is required.";
+    if (model.length > 100) errors.model = "Model name is too long.";
     if (!description.trim()) errors.description = "Problem description is required.";
+    if (description.length > 2000) errors.description = "Description is too long.";
     if (!email.trim()) errors.email = "Email is required.";
-    else if (!emailRe.test(email.trim())) errors.email = "Invalid email format.";
+    else {
+      const em = validateEmail(email);
+      if (!em.valid) errors.email = em.msg;
+    }
     if (!phone.trim()) errors.phone = "Phone number is required.";
-    else if (!phoneRe.test(phone.trim())) errors.phone = "Phone must contain digits only.";
+    else {
+      const ph = validatePhone(phone);
+      if (!ph.valid) errors.phone = ph.msg;
+    }
     return errors;
   };
 

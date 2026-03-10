@@ -117,17 +117,31 @@ export default function TradeInSection() {
     });
   };
 
+  const validatePhone = (value) => {
+    if (!value || typeof value !== "string") return { valid: false };
+    const trimmed = value.trim();
+    if (/[a-zA-Z]/.test(trimmed)) return { valid: false, msg: "Phone must not contain letters." };
+    const digits = trimmed.replace(/\D/g, "");
+    if (digits.length < 7) return { valid: false, msg: "Phone must have at least 7 digits." };
+    if (digits.length > 15) return { valid: false, msg: "Phone number is too long." };
+    return { valid: true };
+  };
+
   const validate = (data) => {
     const e = {};
     if (!data.firstName?.trim()) e.firstName = "First name is required.";
+    else if (data.firstName.length > 100) e.firstName = "First name is too long.";
     if (!data.lastName?.trim()) e.lastName = "Last name is required.";
+    else if (data.lastName.length > 100) e.lastName = "Last name is too long.";
     if (!data.phone?.trim()) e.phone = "Phone number is required.";
     else {
-      const digits = (data.phone.match(/\d/g) || []).length;
-      if (digits < 7) e.phone = "Please enter a valid phone number (at least 7 digits).";
+      const ph = validatePhone(data.phone);
+      if (!ph.valid) e.phone = ph.msg;
     }
     if (!data.model?.trim()) e.model = "Phone model is required.";
+    else if (data.model.length > 100) e.model = "Model name is too long.";
     if (!data.memory?.trim()) e.memory = "Memory capacity is required.";
+    else if (data.memory.length > 50) e.memory = "Memory value is too long.";
     return e;
   };
 

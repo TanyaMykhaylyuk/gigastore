@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
 
-
-
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
 
@@ -64,7 +62,7 @@ export default function ProductCard({ product }) {
         }}
         style={{ cursor: "pointer" }}
       >
-        <div className="product-image">
+        <div className="product-image product-image--fixed">
           <img
             src={product.img || "/categories/phones.png"}
             alt={product.title || "Product"}
@@ -117,7 +115,7 @@ export default function ProductCard({ product }) {
             aria-modal="true"
           >
             <div style={{ display: "flex", gap: 20, padding: 20, alignItems: "flex-start" }}>
-              <div style={{ flex: "0 0 48%", display: "flex", alignItems: "center", justifyContent: "center", background: "#000", padding: 12 }}>
+              <div style={{ flex: "0 0 48%", display: "flex", alignItems: "center", justifyContent: "center", background: "#000", padding: 12, minHeight: 360 }}>
                 <img
                   src={product.img || "/categories/phones.png"}
                   alt={product.title || "Product"}
