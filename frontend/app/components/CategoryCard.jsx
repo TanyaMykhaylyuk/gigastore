@@ -10,4 +10,3 @@ export default function CategoryCard({ slug, title, img }) {
     </Link>
   );
 }
-

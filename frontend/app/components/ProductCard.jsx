@@ -10,7 +10,7 @@ export default function ProductCard({ product }) {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedMemory, setSelectedMemory] = useState("256GB");
-  const [selectedWarranty, setSelectedWarranty] = useState("none"); 
+  const [selectedWarranty, setSelectedWarranty] = useState("none");
 
   const basePrice = Number(product.price) || 0;
 
@@ -27,7 +27,7 @@ export default function ProductCard({ product }) {
   const cat = String(product.category || "").toLowerCase();
   const hasMemoryOptions = !["headphones", "headset", "earphones", "earbuds", "tws"].includes(cat);
 
-   const addProductWithOptions = ({ memory = selectedMemory, warranty = selectedWarranty, closeAfter = true } = {}) => {
+  const addProductWithOptions = ({ memory = selectedMemory, warranty = selectedWarranty, closeAfter = true } = {}) => {
     const mem = memory || "256GB";
     const memExtra = mem === "512GB" ? 100 : mem === "1TB" ? 200 : 0;
     const wPrice = warranty === "1y" ? 50 : warranty === "2y" ? 100 : 0;
@@ -37,7 +37,7 @@ export default function ProductCard({ product }) {
 
     const productItem = {
       ...product,
-      id: `${product.id}-${mem}-${warranty}`, 
+      id: `${product.id}-${mem}-${warranty}`,
       title: `${product.title} (${mem})${warrantyText}`,
       price: finalPrice,
     };
@@ -68,6 +68,7 @@ export default function ProductCard({ product }) {
           <img
             src={product.img || "/categories/phones.png"}
             alt={product.title || "Product"}
+            loading="eager"
             style={{ maxWidth: "100%", maxHeight: 140, objectFit: "contain" }}
           />
         </div>
@@ -116,10 +117,11 @@ export default function ProductCard({ product }) {
             aria-modal="true"
           >
             <div style={{ display: "flex", gap: 20, padding: 20, alignItems: "flex-start" }}>
-               <div style={{ flex: "0 0 48%", display: "flex", alignItems: "center", justifyContent: "center", background: "#000", padding: 12 }}>
+              <div style={{ flex: "0 0 48%", display: "flex", alignItems: "center", justifyContent: "center", background: "#000", padding: 12 }}>
                 <img
                   src={product.img || "/categories/phones.png"}
                   alt={product.title || "Product"}
+                  loading="eager"
                   style={{ maxWidth: "100%", maxHeight: 420, objectFit: "contain" }}
                 />
               </div>
@@ -216,11 +218,8 @@ export default function ProductCard({ product }) {
                   >
                     Buy
                   </button>
-
-                  
                 </div>
-
-                </div>
+              </div>
             </div>
           </div>
         </div>

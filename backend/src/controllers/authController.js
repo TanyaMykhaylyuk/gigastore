@@ -105,7 +105,7 @@ export async function login(req, res) {
     return res.json({
       success: true,
       accessToken,
-      token: accessToken, 
+      token: accessToken,
       user: {
         id: user.id,
         firstName: user.first_name || "",
@@ -158,11 +158,10 @@ export async function refreshToken(req, res) {
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? "none" : "lax",
       maxAge: REFRESH_EXPIRES_SECONDS * 1000,
       path: "/"
     });
- 
+
     return res.json({ success: true, accessToken: newAccessToken, token: newAccessToken });
   } catch (err) {
     console.error("Refresh token error:", err);

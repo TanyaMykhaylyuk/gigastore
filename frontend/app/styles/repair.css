@@ -8,7 +8,7 @@
 .trade-in-section .trade-form-container textarea,
 .trade-in-section .trade-form-container .description-input {
   width: 100%;
-  min-height: 160px;  
+  min-height: 160px;
   padding: 14px;
   margin-top: 8px;
   border-radius: 8px;
@@ -18,8 +18,8 @@
   font-size: 16px;
   box-sizing: border-box;
   line-height: 1.45;
-  resize: vertical;   
-  min-width: 0;          
+  resize: vertical;
+  min-width: 0;
 }
 
 .trade-in-section .trade-form-container input[type="checkbox"] {

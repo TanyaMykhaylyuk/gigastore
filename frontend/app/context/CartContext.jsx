@@ -1,28 +1,44 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, useState, useEffect } from "react";
+import React, { createContext, useContext, useMemo, useState, useEffect, useCallback } from "react";
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     try {
       const stored = localStorage.getItem("cart");
-      if (stored) setCartItems(JSON.parse(stored));
+      if (stored) {
+        const parsedCart = JSON.parse(stored);
+        if (Array.isArray(parsedCart) && parsedCart.length > 0) {
+          setCartItems(parsedCart);
+        }
+      }
     } catch (e) {
       console.warn("[Cart] restore failed:", e);
     }
   }, []);
 
   useEffect(() => {
+    if (!isClient) return;
+    
     try {
-      localStorage.setItem("cart", JSON.stringify(cartItems));
+      if (cartItems.length === 0) {
+        localStorage.removeItem("cart");
+      } else {
+        const currentCart = localStorage.getItem("cart");
+        if (!currentCart || JSON.stringify(cartItems) !== currentCart) {
+          localStorage.setItem("cart", JSON.stringify(cartItems));
+        }
+      }
     } catch (e) {
       console.warn("[Cart] persist failed:", e);
     }
-  }, [cartItems]);
+  }, [cartItems, isClient]);
 
   const addToCart = (product) => {
     setCartItems((prev) => {
@@ -47,22 +63,16 @@ export function CartProvider({ children }) {
     });
   };
 
-  const updateQuantity = (id, qty) => {
-    setCartItems((prev) => prev.map((it) => (it.id === id ? { ...it, quantity: qty } : it)));
-  };
-
-  const normalizeQuantity = (id) => {
-    setCartItems((prev) =>
-      prev.map((it) => {
-        if (it.id !== id) return it;
-        const q = parseInt(it.quantity, 10);
-        const final = Number.isInteger(q) && q > 0 ? q : 1;
-        return { ...it, quantity: final };
-      })
-    );
-  };
-
   const removeItem = (id) => setCartItems((prev) => prev.filter((it) => it.id !== id));
+
+  const clearCart = useCallback(() => {
+    setCartItems([]);
+    try {
+      localStorage.removeItem("cart");
+    } catch (e) {
+      console.warn("[Cart] clear failed:", e);
+    }
+  }, []);
 
   const computeTotal = () =>
     cartItems.reduce((sum, item) => {
@@ -72,8 +82,8 @@ export function CartProvider({ children }) {
     }, 0);
 
   const value = useMemo(
-    () => ({ cartItems, setCartItems, addToCart, updateQuantity, normalizeQuantity, removeItem, computeTotal }),
-    [cartItems]
+    () => ({ cartItems, setCartItems, addToCart, removeItem, clearCart, computeTotal }),
+    [cartItems, clearCart]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

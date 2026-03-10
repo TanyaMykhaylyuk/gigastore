@@ -4,17 +4,16 @@ import { useEffect } from "react";
 import { useCart } from "../context/CartContext";
 
 export default function OrderSuccess() {
-  const { setCartItems } = useCart();
+  const { clearCart } = useCart();
 
   useEffect(() => {
     try {
-      setCartItems([]);
-      try { localStorage.removeItem("cart"); } catch (e) { console.warn("localStorage remove cart failed", e); }
+      clearCart();
       try { window.dispatchEvent(new Event("cart-changed")); } catch {}
     } catch (e) {
       console.error("Failed to clear cart:", e);
     }
-  }, [setCartItems]);
+  }, []);
 
   return (
     <main style={{ padding: 24 }}>

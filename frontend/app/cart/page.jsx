@@ -12,7 +12,7 @@ const phoneRe = /^\d+$/;
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 export default function CartPage() {
-  const { cartItems, addToCart, updateQuantity, normalizeQuantity, removeItem, computeTotal, setCartItems } = useCart();
+  const { cartItems, addToCart, removeItem, computeTotal, setCartItems } = useCart();
   const { token, user, setUserField, displayName } = useAuth();
 
   const [firstName, setFirstName] = useState("");
@@ -129,8 +129,6 @@ export default function CartPage() {
 
     const normalizedCartItems = cartItems.map(ci => ({ ...ci, quantity: Math.max(1, parseInt(ci.quantity, 10) || 1) }));
 
-    setCartItems(normalizedCartItems);
-
     const orderData = {
       cartItems: normalizedCartItems,
       firstName: firstName.trim(),
@@ -195,11 +193,11 @@ export default function CartPage() {
   };
 
   return (
-    <main className="page-root" style={{ padding: "20px" }}>
-      <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
-        <div className="cart-items" style={{ flex: 1 }}>
+    <main className="page-root" style={{ padding: "20px 30px", maxWidth: "1500px", margin: "0 auto" }}>
+      <div style={{ display: "flex", gap: "40px", alignItems: "flex-start" }}>
+        <div className="cart-items" style={{ flex: 1, textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '30px' }}>
           {(!Array.isArray(cartItems) || cartItems.length === 0) ? (
-            <p>Your cart is empty.</p>
+            <p style={{ textAlign: 'left' }}>Your cart is empty.</p>
           ) : (
             cartItems.map((item) => (
               <div
@@ -207,44 +205,36 @@ export default function CartPage() {
                 className="product-card"
                 style={{
                   marginBottom: "15px",
+                  marginTop: cartItems.indexOf(item) === 0 ? "60px" : "0",
                   display: "flex",
-                  alignItems: "center",
+                  alignItems: "flex-start",
                 }}
               >
                 <div
                   className="product-image"
-                  style={{ flex: "0 0 80px", marginRight: "10px" }}
+                  style={{ flex: "0 0 120px", marginRight: "10px" }}
                 >
                   <img
                     src={item.img || "/categories/phones.png"}
                     alt={item.title}
                     style={{
-                      maxWidth: "80px",
-                      maxHeight: "80px",
+                      maxWidth: "120px",
+                      maxHeight: "120px",
                       objectFit: "contain",
+                      borderRadius: "12px",
                     }}
                   />
                 </div>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, textAlign: 'left', minWidth: '300px', alignSelf: 'flex-start' }}>
                   <h3 className="product-title">{item.title}</h3>
-                  <div className="product-price">{item.price} $</div>
+                  <div className="product-price" style={{ textAlign: 'left' }}>{item.price} $</div>
                   <div style={{ marginTop: "8px" }}>
-                    <label>
-                      Quantity:
-                      <input
-                        type="number"
-                        min="1"
-                        className="qty-input"
-                        value={item.quantity ?? ""}
-                        onChange={(e) => updateQuantity(item.id, e.target.value)}
-                        onBlur={() => normalizeQuantity(item.id)}
-                        style={{ width: "70px", marginLeft: "8px" }}
-                      />
-                    </label>
+                    <div style={{ marginBottom: "8px", textAlign: 'left' }}>
+                      Quantity: {Math.max(1, parseInt(item.quantity, 10) || 1)}
+                    </div>
                     <button
                       type="button"
                       className="remove-btn"
-                      style={{ marginLeft: "10px" }}
                       onClick={() => removeItem(item.id)}
                     >
                       Remove
@@ -260,7 +250,7 @@ export default function CartPage() {
           <strong>Total:</strong> {computeTotal().toFixed(2)} $
         </div>
 
-        <div className="checkout-form cart-summary" style={{ flex: 1 }}>
+        <div className="checkout-form cart-summary" style={{ flex: 1, minWidth: "600px", position: "sticky", top: "20px", padding: "24px" }}>
           {orderPlaced ? (
             <div>
               <h2>Thank you for your order!</h2>
