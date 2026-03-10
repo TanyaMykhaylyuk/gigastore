@@ -66,8 +66,6 @@ export default function CatalogClient({ products = [], category = "" }) {
           String(b.title || "").localeCompare(String(a.title || ""), undefined, { sensitivity: "base" })
         );
         break;
-      default:
-        break;
     }
 
     return list;

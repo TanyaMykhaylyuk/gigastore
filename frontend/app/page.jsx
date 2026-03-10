@@ -10,12 +10,12 @@ import ProductCard from "./components/ProductCard";
 
 export default function Home() {
   const { showWelcome: ctxShowWelcome, user, clearWelcome, isAuthenticated } = useAuth();
-  const { addToCart: ctxAddToCart } = useCart(); 
+  const { addToCart: ctxAddToCart } = useCart();
 
   const [showWelcome, setShowWelcome] = useState(false);
   const [welcomeName, setWelcomeName] = useState("");
 
- useEffect(() => {
+  useEffect(() => {
     if (!ctxShowWelcome) return;
 
     if (!isAuthenticated) {
@@ -25,7 +25,7 @@ export default function Home() {
 
     let name = (user?.firstName || "").toString().trim();
 
-    if (!name) {
+    if (!name && typeof window !== 'undefined') {
       try {
         const stored = localStorage.getItem("giga_user");
         if (stored) {
@@ -55,28 +55,32 @@ export default function Home() {
     const timeout = setTimeout(() => {
       setShowWelcome(false);
       clearWelcome();
-      try {
-        localStorage.removeItem("giga_user_firstName");
-        localStorage.removeItem("giga_show_welcome");
-      } catch {}
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem("giga_user_firstName");
+          localStorage.removeItem("giga_show_welcome");
+        } catch {}
+      }
     }, 5000);
 
     return () => clearTimeout(timeout);
   }, [ctxShowWelcome, user?.firstName, isAuthenticated, clearWelcome]);
 
- useEffect(() => {
+  useEffect(() => {
     if (ctxShowWelcome) return;
 
-    try {
-      const flag = localStorage.getItem("giga_show_welcome");
-      const name = localStorage.getItem("giga_user_firstName");
-      if (flag === "1" && name) {
-        localStorage.removeItem("giga_show_welcome");
-        setWelcomeName(name || "");
-        setShowWelcome(true);
+    if (typeof window !== 'undefined') {
+      try {
+        const flag = localStorage.getItem("giga_show_welcome");
+        const name = localStorage.getItem("giga_user_firstName");
+        if (flag === "1" && name) {
+          localStorage.removeItem("giga_show_welcome");
+          setWelcomeName(name || "");
+          setShowWelcome(true);
+        }
+      } catch (err) {
+        console.warn("localStorage not available:", err);
       }
-    } catch (err) {
-      console.warn("localStorage not available:", err);
     }
   }, [ctxShowWelcome]);
 
@@ -84,9 +88,11 @@ export default function Home() {
     if (!showWelcome) return;
     const timeout = setTimeout(() => {
       setShowWelcome(false);
-      try {
-        localStorage.removeItem("giga_user_firstName");
-      } catch {}
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem("giga_user_firstName");
+        } catch {}
+      }
     }, 5000);
     return () => clearTimeout(timeout);
   }, [showWelcome]);
@@ -108,20 +114,22 @@ export default function Home() {
         return;
       }
 
-     const stored = JSON.parse(localStorage.getItem("cart") || "[]");
-      const exists = stored.find((item) => item.id === product.id);
-      let updated;
-      if (exists) {
-        updated = stored.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        updated = [...stored, { ...product, quantity: 1 }];
+      if (typeof window !== 'undefined') {
+        const stored = JSON.parse(localStorage.getItem("cart") || "[]");
+        const exists = stored.find((item) => item.id === product.id);
+        let updated;
+        if (exists) {
+          updated = stored.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          );
+        } else {
+          updated = [...stored, { ...product, quantity: 1 }];
+        }
+        localStorage.setItem("cart", JSON.stringify(updated));
+        window.dispatchEvent(new Event("cart-changed"));
       }
-      localStorage.setItem("cart", JSON.stringify(updated));
-      window.dispatchEvent(new Event("cart-changed"));
     } catch (err) {
       console.error("Error adding to cart:", err);
     }
@@ -129,7 +137,6 @@ export default function Home() {
 
   useEffect(() => {
     if (!expanded) {
-      // Reset state
       setHasFetched(false);
       setError(null);
       setProducts([]);
@@ -340,6 +347,7 @@ export default function Home() {
 
       <TradeInSection />
 
+      
       <DeliverySection />
     </main>
   );

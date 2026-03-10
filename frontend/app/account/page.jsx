@@ -46,11 +46,11 @@ export default function AccountPage() {
   const [orders, setOrders] = useState([]);
 
   const computedName = useMemo(() => {
-   if (displayName && String(displayName).trim()) return String(displayName).trim();
+    if (displayName && String(displayName).trim()) return String(displayName).trim();
 
-   if (user && typeof user.firstName === "string" && user.firstName.trim()) return user.firstName.trim();
+    if (user && typeof user.firstName === "string" && user.firstName.trim()) return user.firstName.trim();
 
-   const possible = (user && (user.name || user.fullName || user.displayName)) || "";
+    const possible = (user && (user.name || user.fullName || user.displayName)) || "";
     if (possible && typeof possible === "string" && possible.trim() && !looksLikeEmail(possible)) {
       const p = parseFullName(possible);
       return p.first || p.last || "";
@@ -64,7 +64,7 @@ export default function AccountPage() {
         const parsed = JSON.parse(storedUser);
         if (parsed && parsed.firstName && String(parsed.firstName).trim()) return String(parsed.firstName).trim();
 
-       if (parsed && parsed.name && typeof parsed.name === "string" && !looksLikeEmail(parsed.name)) {
+        if (parsed && parsed.name && typeof parsed.name === "string" && !looksLikeEmail(parsed.name)) {
           const p = parseFullName(parsed.name);
           return p.first || p.last || "";
         }
@@ -72,7 +72,7 @@ export default function AccountPage() {
     } catch (e) {
     }
 
-    return ""; 
+    return "";
   }, [displayName, user]);
 
   useEffect(() => {
@@ -100,21 +100,52 @@ export default function AccountPage() {
   useEffect(() => {
     if (!token) return;
 
-    const url = `${process.env.NEXT_PUBLIC_API_URL || ""}/auth/profile`;
-    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-      .then(async (res) => {
+    const fetchProfile = async () => {
+      const url = `${process.env.NEXT_PUBLIC_API_URL || ""}/auth/profile`;
+      
+      try {
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        
         if (!res.ok) {
-          logout();
+          if (res.status === 401) {
+            console.warn("[Account] Authentication failed, trying to refresh token");
+            
+            try {
+              const refreshRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ""}/auth/refresh`, {
+                method: "POST",
+                credentials: "include"
+              });
+              
+              if (refreshRes.ok) {
+                const refreshData = await refreshRes.json();
+                if (refreshData?.success && refreshData?.token) {
+                  console.info("[Account] Token refreshed successfully");
+                  setAuthFromResponse({ token: refreshData.token, user: null });
+                  return;
+                }
+              }
+            } catch (refreshErr) {
+              console.error("[Account] Token refresh failed:", refreshErr);
+            }
+            
+            console.warn("[Account] Token refresh failed, logging out");
+            logout();
+          } else {
+            console.error("[Account] Profile fetch failed with status:", res.status);
+          }
           return;
         }
+        
         const data = await res.json().catch(() => null);
         if (data?.success && data.user) {
           setAuthFromResponse({ token, user: data.user });
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Profile fetch error:", err);
-      });
+      }
+    };
+
+    fetchProfile();
   }, [token, logout, setAuthFromResponse]);
 
   useEffect(() => {
@@ -262,6 +293,7 @@ export default function AccountPage() {
   };
 
   const handleLogout = () => {
+    console.info("[Account] Logout button clicked by user");
     logout();
     router.push("/");
   };

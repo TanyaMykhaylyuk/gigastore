@@ -5,8 +5,4 @@ const router = express.Router();
 
 router.get("/", productsController.getProducts);
 
-router.get("/all", productsController.getAllProducts);
-
-router.get("/count", productsController.getProductsCount);
-
 export default router;

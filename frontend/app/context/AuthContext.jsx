@@ -55,19 +55,55 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState({ firstName: "", lastName: "", phone: "", email: "" });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
 
   const lastAppliedRef = useRef(null);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+    
+    console.info("[Auth] starting initial authentication restoration");
+    
     try {
       const storedToken = localStorage.getItem("token");
       const storedUser = localStorage.getItem("giga_user");
+      
+      console.info("[Auth] initial check - token exists:", !!storedToken, "user exists:", !!storedUser);
+      
       if (storedToken) {
-        setToken(storedToken);
-        setIsAuthenticated(true);
-        console.info("[Auth] token restored from localStorage");
+        try {
+          const parts = storedToken.split('.');
+          if (parts.length !== 3) {
+            console.warn("[Auth] Invalid token format, clearing authentication");
+            localStorage.removeItem("token");
+            localStorage.removeItem("giga_user");
+            return;
+          }
+          
+          const payload = JSON.parse(atob(parts[1]));
+          const now = Math.floor(Date.now() / 1000);
+          if (payload.exp && payload.exp < now) {
+            console.warn("[Auth] Token expired, clearing authentication");
+            localStorage.removeItem("token");
+            localStorage.removeItem("giga_user");
+            return;
+          }
+          
+          setToken(storedToken);
+          console.info("[Auth] token restored from localStorage");
+        } catch (tokenErr) {
+          console.warn("[Auth] Token validation failed:", tokenErr);
+          localStorage.removeItem("token");
+          localStorage.removeItem("giga_user");
+          return;
+        }
       }
+      
       if (storedUser) {
         const parsed = JSON.parse(storedUser);
         setUser({
@@ -78,6 +114,13 @@ export function AuthProvider({ children }) {
         });
         console.info("[Auth] user restored from localStorage:", parsed);
       }
+      
+      if (storedToken) {
+        setIsAuthenticated(true);
+        console.info("[Auth] authentication state set to true");
+      } else {
+        console.info("[Auth] no token found, user not authenticated");
+      }
     } catch (err) {
       console.warn("[Auth] restore failed:", err);
     }
@@ -85,14 +128,27 @@ export function AuthProvider({ children }) {
     const onAuthChanged = (ev) => {
       try {
         const detail = ev?.detail || {};
-        if (detail?.reload) {
+        console.info("[Auth] auth-changed event received:", detail);
+        
+        if (detail?.reload && !window.location.pathname.includes('/order-success')) {
+          console.info("[Auth] reload requested, reloading page");
           window.location.reload();
           return;
         }
+        
+        if (detail?.isAuthenticated === true && isAuthenticated) {
+          console.info("[Auth] skipping auth-changed processing - already authenticated");
+          return;
+        }
+        
         const storedToken = localStorage.getItem("token");
         const storedUser = localStorage.getItem("giga_user");
+        
+        console.info("[Auth] checking localStorage - token:", !!storedToken, "user:", !!storedUser);
+        
         setToken(storedToken || null);
         setIsAuthenticated(!!storedToken);
+        
         if (storedUser) {
           const parsed = JSON.parse(storedUser);
           setUser({
@@ -111,7 +167,7 @@ export function AuthProvider({ children }) {
 
     window.addEventListener("auth-changed", onAuthChanged);
     return () => window.removeEventListener("auth-changed", onAuthChanged);
-  }, []);
+  }, [isClient]);
 
   const safeMergeUser = (existing, incoming) => {
     if (!incoming) return existing;
@@ -137,7 +193,7 @@ export function AuthProvider({ children }) {
     try {
       const incomingHasUserFields = hasAnyUserField(u);
 
-    const parsedName = extractNameParts(u || {});
+      const parsedName = extractNameParts(u || {});
       const canonical = JSON.stringify({
         token: t || null,
         hasUserFields: incomingHasUserFields,
@@ -155,19 +211,23 @@ export function AuthProvider({ children }) {
 
       if (t) {
         setToken(t);
-        try { localStorage.setItem("token", t); } catch (e) { console.warn("[Auth] can't persist token:", e); }
+        if (typeof window !== 'undefined') {
+          try { localStorage.setItem("token", t); } catch (e) { console.warn("[Auth] can't persist token:", e); }
+        }
       }
 
       if (incomingHasUserFields || (u && Object.keys(u).length > 0)) {
         setUser((prev) => {
           const merged = safeMergeUser(prev, u || {});
-          try {
-            localStorage.setItem("giga_user", JSON.stringify(merged));
-            if (isNonEmptyString(merged.firstName)) {
-              localStorage.setItem("giga_user_firstName", merged.firstName);
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem("giga_user", JSON.stringify(merged));
+              if (isNonEmptyString(merged.firstName)) {
+                localStorage.setItem("giga_user_firstName", merged.firstName);
+              }
+            } catch (e) {
+              console.warn("[Auth] can't persist user:", e);
             }
-          } catch (e) {
-            console.warn("[Auth] can't persist user:", e);
           }
           console.info("[Auth] user stored (merged):", merged);
           return merged;
@@ -179,6 +239,7 @@ export function AuthProvider({ children }) {
       setIsAuthenticated(true);
       setShowWelcome(true);
 
+      console.info("[Auth] authentication completed, dispatching auth-changed event");
       try { window.dispatchEvent(new CustomEvent("auth-changed", { detail: { isAuthenticated: true } })); } catch {}
     } catch (err) {
       console.error("[Auth] setAuthFromResponse failed:", err);
@@ -186,24 +247,28 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    console.info("[Auth] logout function called");
     try {
       setToken(null);
       setUser({ firstName: "", lastName: "", phone: "", email: "" });
       setIsAuthenticated(false);
       setShowWelcome(false);
 
-      try {
-        localStorage.removeItem("token");
-        localStorage.removeItem("giga_user");
-        localStorage.removeItem("giga_user_firstName");
-        localStorage.removeItem("giga_show_welcome");
-        console.info("[Auth] cleared localStorage auth keys");
-      } catch (e) {
-        console.warn("[Auth] error clearing storage:", e);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem("token");
+          localStorage.removeItem("giga_user");
+          localStorage.removeItem("giga_user_firstName");
+          localStorage.removeItem("giga_show_welcome");
+          console.info("[Auth] cleared localStorage auth keys");
+        } catch (e) {
+          console.warn("[Auth] error clearing storage:", e);
+        }
       }
 
       lastAppliedRef.current = null;
 
+      console.info("[Auth] dispatching logout auth-changed event with reload");
       try { window.dispatchEvent(new CustomEvent("auth-changed", { detail: { isAuthenticated: false, reload: true } })); } catch {}
       setTimeout(() => window.location.reload(), 60);
     } catch (e) {
@@ -215,10 +280,12 @@ export function AuthProvider({ children }) {
   const setUserField = (key, value) => {
     setUser((s) => {
       const next = { ...s, [key]: value };
-      try {
-        localStorage.setItem("giga_user", JSON.stringify(next));
-        if (key === "firstName") localStorage.setItem("giga_user_firstName", value || "");
-      } catch {}
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem("giga_user", JSON.stringify(next));
+          if (key === "firstName") localStorage.setItem("giga_user_firstName", value || "");
+        } catch {}
+      }
       return next;
     });
   };
@@ -226,10 +293,12 @@ export function AuthProvider({ children }) {
   const triggerWelcome = () => setShowWelcome(true);
   const clearWelcome = () => {
     setShowWelcome(false);
-    try { localStorage.removeItem("giga_show_welcome"); } catch {}
+    if (typeof window !== 'undefined') {
+      try { localStorage.removeItem("giga_show_welcome"); } catch {}
+    }
   };
 
- const getDisplayName = (u) => {
+  const getDisplayName = (u) => {
     if (!u) return "";
     const f = (s) => (typeof s === "string" ? s.trim() : "");
     const first = f(u.firstName);
@@ -239,7 +308,7 @@ export function AuthProvider({ children }) {
     if (first) return first + (last ? ` ${last}` : "");
     if (last) return last;
     if (phone) return phone;
-    return ""; 
+    return "";
   };
 
   const displayName = useMemo(() => getDisplayName(user), [user]);
