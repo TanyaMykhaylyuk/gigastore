@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import dotenv from "dotenv";
 import { sendMail } from "../lib/mail.js";
+import { processPaidCheckoutSession } from "./webhookController.js";
 dotenv.config();
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -136,5 +137,32 @@ ${itemsList}
   } catch (err) {
     console.error("create-checkout-session error:", err);
     return res.status(500).json({ error: err.message });
+  }
+}
+
+export async function finalizeCheckoutSession(req, res) {
+  try {
+    const { sessionId } = req.body || {};
+    if (!sessionId || typeof sessionId !== "string") {
+      return res.status(400).json({ success: false, error: "sessionId is required" });
+    }
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(500).json({ success: false, error: "Stripe not configured" });
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (!session || session.mode !== "payment") {
+      return res.status(400).json({ success: false, error: "Invalid checkout session" });
+    }
+    if (session.payment_status !== "paid") {
+      return res.status(400).json({ success: false, error: "Payment not completed yet" });
+    }
+
+    const result = await processPaidCheckoutSession(stripe, session);
+    return res.json({ success: true, duplicate: !!result?.duplicate });
+  } catch (err) {
+    console.error("[stripeController] finalizeCheckoutSession error:", err);
+    return res.status(500).json({ success: false, error: "Failed to finalize checkout session" });
   }
 }

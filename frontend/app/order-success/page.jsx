@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useCart } from "../context/CartContext";
 
 export default function OrderSuccess() {
   const { clearCart } = useCart();
+  const searchParams = useSearchParams();
+  const sessionId = searchParams?.get("session_id");
 
   useEffect(() => {
     try {
@@ -13,7 +16,22 @@ export default function OrderSuccess() {
     } catch (e) {
       console.error("Failed to clear cart:", e);
     }
-  }, []);
+
+    if (sessionId) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/stripe/finalize-checkout-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      })
+        .then(async (r) => {
+          const data = await r.json().catch(() => null);
+          if (!r.ok) console.error("Finalize checkout failed:", data);
+        })
+        .catch((err) => {
+          console.error("Finalize checkout request error:", err);
+        });
+    }
+  }, [clearCart, sessionId]);
 
   return (
     <main style={{ padding: 24 }}>
