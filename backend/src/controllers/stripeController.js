@@ -18,6 +18,25 @@ function validateEmail(value) {
   return emailRe.test(value.trim().toLowerCase());
 }
 
+function getFrontendOrigin(req) {
+  if (process.env.FRONTEND_ORIGIN && process.env.FRONTEND_ORIGIN.trim()) {
+    return process.env.FRONTEND_ORIGIN.trim();
+  }
+
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const forwardedHost = req.headers["x-forwarded-host"];
+  if (forwardedProto && forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+
+  const origin = req.headers.origin;
+  if (origin && typeof origin === "string") {
+    return origin;
+  }
+
+  return "http://localhost:3000";
+}
+
 export async function createCheckoutSession(req, res) {
   try {
     const { cartItems, firstName, lastName, phone, email, address } = req.body;
@@ -47,6 +66,7 @@ export async function createCheckoutSession(req, res) {
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const frontendOrigin = getFrontendOrigin(req);
 
     const line_items = cartItems.map((item) => ({
       price_data: {
@@ -64,9 +84,8 @@ export async function createCheckoutSession(req, res) {
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
-      success_url:
-        `${process.env.FRONTEND_ORIGIN || "http://localhost:3000"}/order-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_ORIGIN || "http://localhost:3000"}/cart`,
+      success_url: `${frontendOrigin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${frontendOrigin}/cart`,
       metadata: {
         firstName: firstName || "",
         lastName: lastName || "",

@@ -7,9 +7,6 @@ import crypto from "crypto";
 dotenv.config();
 
 export async function handleStripeWebhook(req, res) {
-  console.log("[webhook] Headers:", Object.keys(req.headers));
-  console.log("[webhook] Body type:", typeof req.body);
-  
   if (!process.env.STRIPE_SECRET_KEY) {
     console.error("STRIPE_SECRET_KEY is not set in environment");
     return res.status(500).send("Stripe secret key not configured");
@@ -19,22 +16,27 @@ export async function handleStripeWebhook(req, res) {
 
   let event;
   try {
-    let body = req.body;
-    if (typeof body === 'string') {
-      body = JSON.parse(body);
-    } else if (Buffer.isBuffer(body)) {
-      body = JSON.parse(body.toString());
-    } else if (typeof body === 'object') {
-      body = body;
+    const signature = req.headers["stripe-signature"];
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (signature && webhookSecret) {
+      const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body || "", "utf8");
+      event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
     } else {
-      throw new Error('Invalid body type');
+      if (Buffer.isBuffer(req.body)) {
+        event = JSON.parse(req.body.toString("utf8"));
+      } else if (typeof req.body === "string") {
+        event = JSON.parse(req.body);
+      } else if (typeof req.body === "object" && req.body !== null) {
+        event = req.body;
+      } else {
+        throw new Error("Invalid webhook body");
+      }
+      console.warn("[webhook] Signature verification skipped (missing stripe-signature or STRIPE_WEBHOOK_SECRET)");
     }
-    
-    event = body;
-    console.warn("[webhook] Processing event in test mode - SUCCESS");
   } catch (err) {
-    console.error("Failed to parse webhook body:", err.message);
-    event = req.body;
+    console.error("[webhook] signature verification/parsing failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   res.json({ received: true });
