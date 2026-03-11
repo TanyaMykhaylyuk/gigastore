@@ -5,12 +5,12 @@ dotenv.config();
 const { Pool } = pg;
 
 if (!process.env.DATABASE_URL) {
-  console.error("DATABASE_URL not set in .env");
+  throw new Error("DATABASE_URL not set");
 }
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: parseInt(process.env.PG_POOL_SIZE || "10", 10),
+  max: parseInt(process.env.PG_POOL_SIZE || "5", 10),
   ssl: { rejectUnauthorized: false }
 });
 
