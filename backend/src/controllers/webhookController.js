@@ -79,17 +79,18 @@ Items:
 ${itemsText}
       `;
 
-      try {
-        await sendMail({
-          from: `"GIGA STORE" <no-reply@gigastore.com>`,
-          to: process.env.ADMIN_EMAIL,
-          subject: "Paid order received",
-          text: adminText,
+      sendMail({
+        from: `"GIGA STORE" <no-reply@gigastore.com>`,
+        to: process.env.ADMIN_EMAIL,
+        subject: "Paid order received",
+        text: adminText,
+      })
+        .then(() => {
+          console.log("[webhook] Admin notified about paid order", session.id);
+        })
+        .catch((mailErr) => {
+          console.error("[webhook] Failed to send admin mail:", mailErr);
         });
-        console.log("[webhook] Admin notified about paid order", session.id);
-      } catch (mailErr) {
-        console.error("[webhook] Failed to send admin mail:", mailErr);
-      }
 
       try {
         const userEmail = meta.email && meta.email.trim().toLowerCase();
@@ -116,21 +117,20 @@ ${itemsText}
             );
             userId = insertRes.rows[0].id;
 
-            try {
-              await sendMail({
-                from: `"GIGA STORE" <no-reply@gigastore.com>`,
-                to: userEmail,
-                subject: "Your new GIGA STORE account",
-                text: `Hello ${meta.firstName || ""},
+            sendMail({
+              from: `"GIGA STORE" <no-reply@gigastore.com>`,
+              to: userEmail,
+              subject: "Your new GIGA STORE account",
+              text: `Hello ${meta.firstName || ""},
 
 An account has been created for you at GIGA STORE after your recent purchase.
 
 Email: ${userEmail}
 Password: ${generatedPassword}`,
+            })
+              .catch((userMailErr) => {
+                console.error("[webhook] Failed to send user account email:", userMailErr);
               });
-            } catch (userMailErr) {
-              console.error("[webhook] Failed to send user account email:", userMailErr);
-            }
           }
 
           let itemsData = [];

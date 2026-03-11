@@ -10,6 +10,9 @@ export function getTransporter() {
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT || "587", 10),
     secure: false,
+    connectionTimeout: parseInt(process.env.SMTP_CONNECTION_TIMEOUT || "5000", 10),
+    greetingTimeout: parseInt(process.env.SMTP_GREETING_TIMEOUT || "5000", 10),
+    socketTimeout: parseInt(process.env.SMTP_SOCKET_TIMEOUT || "10000", 10),
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS
@@ -30,8 +33,6 @@ export async function sendMail(opts) {
     }
 
     const t = getTransporter();
-    
-    await t.verify();
     
     console.log("[mail] Sending email to:", opts.to);
     console.log("[mail] Subject:", opts.subject);
