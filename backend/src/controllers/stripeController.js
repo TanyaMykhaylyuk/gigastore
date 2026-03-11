@@ -116,14 +116,18 @@ Items:
 ${itemsList}
       `;
 
-      await sendMail({
+      sendMail({
         from: `"GIGA STORE" <no-reply@gigastore.com>`,
         to: process.env.ADMIN_EMAIL,
         subject: `New order (pending payment) — ${firstName || ""} ${lastName || ""}`,
         text,
-      });
-
-      console.info("[stripeController] admin notified about new checkout session (pending payment)", session.id);
+      })
+        .then(() => {
+          console.info("[stripeController] admin notified about new checkout session (pending payment)", session.id);
+        })
+        .catch((mailErr) => {
+          console.error("[stripeController] failed to send admin notification on session create:", mailErr);
+        });
     } catch (mailErr) {
       console.error("[stripeController] failed to send admin notification on session create:", mailErr);
     }
