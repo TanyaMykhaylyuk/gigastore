@@ -86,7 +86,7 @@ export default function ProductCard({ product }) {
 
       {modalOpen && (
         <div
-          className="modal-overlay"
+          className="product-modal-overlay"
           style={{
             position: "fixed",
             inset: 0,
@@ -100,54 +100,55 @@ export default function ProductCard({ product }) {
           onClick={() => setModalOpen(false)}
         >
           <div
-            className="modal-card"
+            className="product-modal-card"
             style={{
               width: "100%",
               maxWidth: 980,
               background: "#0b0b0b",
               borderRadius: 12,
-              overflow: "hidden",
+              overflow: "visible",
               boxShadow: "0 20px 40px rgba(0,0,0,0.6)",
               border: "1px solid rgba(255,255,255,0.04)",
+              position: "relative",
             }}
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
           >
-            <div style={{ display: "flex", gap: 20, padding: 20, alignItems: "flex-start" }}>
-              <div style={{ flex: "0 0 48%", display: "flex", alignItems: "center", justifyContent: "center", background: "#000", padding: 12, minHeight: 360 }}>
+            <button
+              className="product-modal-close"
+              aria-label="Close"
+              onClick={() => setModalOpen(false)}
+              type="button"
+            >
+              ×
+            </button>
+
+            <div className="product-modal-content">
+              <div className="product-modal-image">
                 <img
                   src={product.img || "/categories/phones.png"}
                   alt={product.title || "Product"}
                   loading="eager"
-                  style={{ maxWidth: "100%", maxHeight: 420, objectFit: "contain" }}
+                  className="product-modal-image-img"
                 />
               </div>
 
-              <div style={{ flex: "1 1 52%", paddingRight: 12, color: "var(--white)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <h2 style={{ margin: 0 }}>{product.title}</h2>
-                  <button
-                    aria-label="Close"
-                    onClick={() => setModalOpen(false)}
-                    style={{ border: "none", background: "transparent", fontSize: 24, color: "var(--white)", cursor: "pointer" }}
-                  >
-                    ×
-                  </button>
-                </div>
+              <div className="product-modal-body">
+                <h2 style={{ margin: 0 }}>{product.title}</h2>
 
                 <p style={{ fontWeight: 700, fontSize: 18, marginTop: 8 }}>
                   Price: {combinedPrice} $
                 </p>
 
-                <div style={{ fontSize: 13, color: "var(--muted)", marginTop: 6 }}>
+                <div className="product-modal-price-breakdown">
                   <div>Base price: {Math.trunc(basePrice)} $</div>
                   <div>Memory extra: {memoryExtra} $</div>
                   <div>Warranty extra: {warrantyPrice} $</div>
                 </div>
 
                 {hasMemoryOptions ? (
-                  <div style={{ marginTop: 12 }}>
+                  <div className="product-modal-memory">
                     <label htmlFor="memory" style={{ fontWeight: 700 }}>Memory</label>
                     <div style={{ marginTop: 8 }}>
                       <select
@@ -163,12 +164,12 @@ export default function ProductCard({ product }) {
                     </div>
                   </div>
                 ) : (
-                  <div style={{ marginTop: 12 }}>
+                  <div className="product-modal-memory">
                     <div style={{ fontStyle: "italic", color: "var(--muted)" }}>Memory options not available for this product.</div>
                   </div>
                 )}
 
-                <div style={{ marginTop: 18 }}>
+                <div className="product-modal-warranty">
                   <label style={{ fontWeight: 700 }}>Recommended for purchase:</label>
                   <div style={{ marginTop: 8 }}>
                     <label style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -206,7 +207,7 @@ export default function ProductCard({ product }) {
                   </div>
                 </div>
 
-                <div style={{ marginTop: 20, display: "flex", gap: 12, alignItems: "center" }}>
+                <div className="product-modal-actions" style={{ display: "flex", gap: 12, alignItems: "center" }}>
                   <button
                     onClick={() => {
                       addProductWithOptions({ memory: selectedMemory, warranty: selectedWarranty, closeAfter: true });
