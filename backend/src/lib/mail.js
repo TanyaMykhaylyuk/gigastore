@@ -1,54 +1,43 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 dotenv.config();
 
-let transporter = null;
-
-export function getTransporter() {
-  if (transporter) return transporter;
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || "587", 10),
-    secure: false,
-    connectionTimeout: parseInt(process.env.SMTP_CONNECTION_TIMEOUT || "5000", 10),
-    greetingTimeout: parseInt(process.env.SMTP_GREETING_TIMEOUT || "5000", 10),
-    socketTimeout: parseInt(process.env.SMTP_SOCKET_TIMEOUT || "10000", 10),
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
-  });
-  return transporter;
-}
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const defaultFrom = process.env.MAIL_FROM || "GIGA STORE <onboarding@resend.dev>";
 
 export async function sendMail(opts) {
   try {
-    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      console.error("[mail] SMTP configuration missing");
-      console.log("[mail] EMAIL WOULD BE SENT (development mode):");
+    if (!process.env.RESEND_API_KEY) {
+      console.error("[mail] RESEND_API_KEY is missing");
+      console.log("[mail] EMAIL WOULD BE SENT (development):");
       console.log("[mail] To:", opts.to);
       console.log("[mail] Subject:", opts.subject);
-      console.log("[mail] Body:", opts.text);
-      return { messageId: "dev-mode-no-send", development: true };
+      return { messageId: "dev-no-send", development: true };
     }
 
-    const t = getTransporter();
-    
+    const to = Array.isArray(opts.to) ? opts.to : [opts.to];
+    const from = defaultFrom;
+
     console.log("[mail] Sending email to:", opts.to);
     console.log("[mail] Subject:", opts.subject);
-    
-    const result = await t.sendMail(opts);
-    console.log("[mail] Email sent successfully:", result.messageId);
-    return result;
+
+    const { data, error } = await resend.emails.send({
+      from,
+      to,
+      subject: opts.subject || "",
+      text: opts.text || "",
+      html: opts.html || undefined
+    });
+
+    if (error) {
+      console.error("[mail] Resend error:", error);
+      throw new Error(error.message || "Resend send failed");
+    }
+
+    console.log("[mail] Email sent successfully:", data?.id);
+    return { messageId: data?.id, ...data };
   } catch (error) {
     console.error("[mail] Email sending failed:", error);
-    console.error("[mail] SMTP config:", {
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      user: process.env.SMTP_USER ? "configured" : "missing",
-      pass: process.env.SMTP_PASS ? "configured" : "missing",
-      adminEmail: process.env.ADMIN_EMAIL
-    });
     throw error;
   }
 }
