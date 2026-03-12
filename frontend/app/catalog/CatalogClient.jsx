@@ -72,7 +72,7 @@ export default function CatalogClient({ products = [], category = "" }) {
   }, [localProducts, sortBy, searchTerm, minPrice, maxPrice]);
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 20px 60px" }}>
+    <div className="catalog-page">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
         <h1 style={{ margin: 0, fontSize: 22, textAlign: "left" }}>
           {category ? `Category: ${category}` : "All products"}

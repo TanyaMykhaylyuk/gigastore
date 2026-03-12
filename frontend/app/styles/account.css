@@ -40,6 +40,24 @@
   gap: 12px;
 }
 
+.account-mode-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.account-mode-switch {
+  display: flex;
+  gap: 8px;
+  flex: 0 1 auto;
+}
+
+.account-mode-btn {
+  min-width: 88px;
+}
+
 .account-auth-header {
   display: flex;
   justify-content: space-between;
@@ -188,4 +206,17 @@
   .orders-scroll { max-height: 50vh !important; padding-right: 12px; }
   .order-item { gap: 8px; }
   .order-item-image, .order-item-image img { width: 56px; height: 56px; max-width: 56px; max-height: 56px; }
+
+  .account-mode-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .account-mode-switch {
+    width: 100%;
+    gap: 8px;
+  }
+  .account-mode-btn {
+    flex: 1 1 0;
+    min-width: 0;
+  }
 }

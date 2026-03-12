@@ -383,20 +383,20 @@ export default function AccountPage() {
           </div>
         ) : (
           <>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <div className="account-mode-header">
               <h2 id="account-title" style={{ margin: 0 }}>{isLogin ? "Login" : "Register"}</h2>
 
-              <div style={{ display: "flex", gap: 8 }}>
+              <div className="account-mode-switch">
                 <button
                   onClick={() => { if (!isLogin) toggleMode(); }}
-                  className="submit-btn"
+                  className="submit-btn account-mode-btn"
                   style={{ padding: "8px 12px", fontSize: 14, borderRadius: 8, background: isLogin ? "var(--neon)" : "transparent", color: isLogin ? "#000" : "var(--white)" }}
                 >
                   Login
                 </button>
                 <button
                   onClick={() => { if (isLogin) toggleMode(); }}
-                  className="submit-btn"
+                  className="submit-btn account-mode-btn"
                   style={{ padding: "8px 12px", fontSize: 14, borderRadius: 8, background: !isLogin ? "var(--neon)" : "transparent", color: !isLogin ? "#000" : "var(--white)" }}
                 >
                   Register

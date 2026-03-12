@@ -217,6 +217,7 @@ body {
 
 .products-grid-wrapper{ padding:20px; max-width:1200px; margin:0 auto 40px; }
 .products-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:16px; }
+.catalog-page { max-width: 1200px; margin: 0 auto; padding: 12px 20px 60px; }
 
 .product-card{
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
@@ -303,8 +304,39 @@ body {
 @media (max-width:768px){
   .brand{ font-size:34px; }
   .site-header{ padding:10px 14px; }
+  .site-header__left, .site-header__right { width: 100%; }
+  .site-header__right { justify-content: flex-end; }
   .show-all-btn{ padding:14px 28px; font-size:16px; }
   .products-grid{ grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+
+@media (max-width:640px){
+  .site-header{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 10px 12px;
+  }
+  .site-header__left { justify-content: center; }
+  .site-header__right { justify-content: space-between; gap: 8px; }
+  .brand{
+    font-size: 30px;
+    text-align: center;
+    line-height: 0.95;
+  }
+  .btn{
+    padding: 7px 9px;
+    font-size: 13px;
+    gap: 6px;
+  }
+  .btn-icon { width: 16px; height: 16px; }
+  .btn--cart { padding: 7px 9px; }
+
+  .catalog-page { padding: 10px 10px 44px; }
+  .products-grid-wrapper { padding: 10px; }
+  .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .product-card { min-height: 260px; padding: 10px; }
+  .product-title { font-size: 15px; }
 }
 
 .delivery-section {
@@ -534,7 +566,41 @@ body {
 }
 
 @media (max-width: 640px) {
-  .trade-form-container { padding: 28px; }
+  .delivery-section {
+    min-height: 460px;
+    padding: 40px 10px;
+    align-items: flex-end;
+  }
+  .delivery-section img {
+    width: 140px;
+    max-width: 35%;
+    left: 0;
+    bottom: 12px;
+    opacity: 0.45;
+    z-index: 1;
+  }
+  .delivery-text-container {
+    padding: 28px 18px;
+    margin-right: 0;
+    font-size: 15px;
+    max-width: 92%;
+    z-index: 2;
+  }
+
   .trade-in-section { padding: 40px 12px; min-height: 520px; }
-  .img-left, .img-right { display: none; }
+  .trade-form-container {
+    padding: 28px 18px;
+    max-width: 90%;
+    z-index: 2;
+  }
+  .trade-in-section .img-left,
+  .trade-in-section .img-right {
+    display: block;
+    width: 110px;
+    max-width: 32%;
+    opacity: 0.42;
+    z-index: 1;
+  }
+  .trade-in-section .img-left { left: -6px; top: 26px; }
+  .trade-in-section .img-right { right: -6px; bottom: 18px; }
 }
