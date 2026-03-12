@@ -42,7 +42,7 @@ export default function AccountPage() {
   const router = useRouter();
   const sectionRef = useRef(null);
   const emailInputRef = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
 
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
