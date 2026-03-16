@@ -9,93 +9,7 @@ import DeliverySection from "./components/DeliverySection";
 import ProductCard from "./components/ProductCard";
 
 export default function Home() {
-  const { showWelcome: ctxShowWelcome, user, clearWelcome, isAuthenticated } = useAuth();
   const { addToCart: ctxAddToCart } = useCart();
-
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [welcomeName, setWelcomeName] = useState("");
-
-  useEffect(() => {
-    if (!ctxShowWelcome) return;
-
-    if (!isAuthenticated) {
-      clearWelcome();
-      return;
-    }
-
-    let name = (user?.firstName || "").toString().trim();
-
-    if (!name && typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem("giga_user");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          name = (parsed?.firstName || "").toString().trim();
-        }
-        if (!name) {
-          const firstNameKey = localStorage.getItem("giga_user_firstName");
-          if (firstNameKey) name = firstNameKey.toString().trim();
-        }
-      } catch (e) {
-        console.warn("[Home] can't read persisted user:", e);
-      }
-    }
-
-    if (!name) {
-      console.info("[Home] no firstName available, skipping welcome banner");
-      clearWelcome();
-      setShowWelcome(false);
-      setWelcomeName("");
-      return;
-    }
-
-    setWelcomeName(name);
-    setShowWelcome(true);
-
-    const timeout = setTimeout(() => {
-      setShowWelcome(false);
-      clearWelcome();
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.removeItem("giga_user_firstName");
-          localStorage.removeItem("giga_show_welcome");
-        } catch {}
-      }
-    }, 5000);
-
-    return () => clearTimeout(timeout);
-  }, [ctxShowWelcome, user?.firstName, isAuthenticated, clearWelcome]);
-
-  useEffect(() => {
-    if (ctxShowWelcome) return;
-
-    if (typeof window !== 'undefined') {
-      try {
-        const flag = localStorage.getItem("giga_show_welcome");
-        const name = localStorage.getItem("giga_user_firstName");
-        if (flag === "1" && name) {
-          localStorage.removeItem("giga_show_welcome");
-          setWelcomeName(name || "");
-          setShowWelcome(true);
-        }
-      } catch (err) {
-        console.warn("localStorage not available:", err);
-      }
-    }
-  }, [ctxShowWelcome]);
-
-  useEffect(() => {
-    if (!showWelcome) return;
-    const timeout = setTimeout(() => {
-      setShowWelcome(false);
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.removeItem("giga_user_firstName");
-        } catch {}
-      }
-    }, 5000);
-    return () => clearTimeout(timeout);
-  }, [showWelcome]);
 
   const [expanded, setExpanded] = useState(false);
   const [products, setProducts] = useState([]);
@@ -279,30 +193,6 @@ export default function Home() {
 
   return (
     <main className="page-root">
-      <div
-        className="welcome-banner"
-        style={{
-          position: "fixed",
-          top: 18,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 9999,
-          background: "linear-gradient(90deg, rgba(0,140,255,0.95), rgba(0,200,255,0.9))",
-          color: "#000",
-          padding: "12px 20px",
-          borderRadius: 12,
-          boxShadow: "0 8px 30px rgba(0,140,255,0.25)",
-          fontWeight: 800,
-          fontSize: 18,
-          opacity: showWelcome ? 1 : 0,
-          pointerEvents: showWelcome ? "auto" : "none",
-          transition: "opacity 500ms ease-in-out",
-        }}
-        aria-hidden={!showWelcome}
-      >
-        {`Welcome, ${welcomeName || "user"}!`}
-      </div>
-
       <section>
         <CategoriesCarousel />
       </section>

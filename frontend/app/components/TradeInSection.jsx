@@ -23,6 +23,7 @@ export default function TradeInSection() {
   const [sending, setSending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [serverMessage, setServerMessage] = useState(null);
+  const filledForTokenRef = useRef(null);
 
   const pickField = (obj, keys) => {
     if (!obj) return "";
@@ -67,11 +68,17 @@ export default function TradeInSection() {
     };
 
     if (!token) {
+      filledForTokenRef.current = null;
       fillFromUserLike(user || {});
       return () => {
         mounted = false;
       };
     }
+
+    if (filledForTokenRef.current === token) {
+      return () => { mounted = false; };
+    }
+    filledForTokenRef.current = token;
 
     const url = `${process.env.NEXT_PUBLIC_API_URL || ""}/auth/profile`;
     fetch(url, { headers: { Authorization: `Bearer ${token}` } })

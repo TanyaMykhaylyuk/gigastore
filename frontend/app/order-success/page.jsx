@@ -25,7 +25,11 @@ export default function OrderSuccess() {
       })
         .then(async (r) => {
           const data = await r.json().catch(() => null);
-          if (!r.ok) console.error("Finalize checkout failed:", data);
+          if (!r.ok) {
+            console.error("Finalize checkout failed:", data);
+          } else {
+            try { window.dispatchEvent(new CustomEvent("orders-need-refresh")); } catch {}
+          }
         })
         .catch((err) => {
           console.error("Finalize checkout request error:", err);

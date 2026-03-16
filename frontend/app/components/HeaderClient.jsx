@@ -22,13 +22,9 @@ export default function HeaderClient() {
   return (
     <header className="site-header" role="banner">
       <div className="site-header__left">
-        <h1
-          className="brand"
-          onClick={() => (window.location.href = "/")}
-          style={{ cursor: "pointer" }}
-        >
+        <Link href="/" className="brand" style={{ cursor: "pointer", textDecoration: "none" }}>
           GIGA STORE
-        </h1>
+        </Link>
       </div>
 
       <div
