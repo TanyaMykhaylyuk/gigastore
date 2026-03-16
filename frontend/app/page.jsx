@@ -74,11 +74,27 @@ export default function Home() {
       .then((data) => {
         if (ac.signal.aborted) return;
         const rows = Array.isArray(data) ? data : data.rows ?? [];
-        const shuffled = rows.slice().sort(() => Math.random() - 0.5);
-        setProducts(shuffled);
+
+        const stableHash = (str) => {
+          let h = 0;
+          for (let i = 0; i < str.length; i += 1) {
+            h = (h * 31 + str.charCodeAt(i)) | 0;
+          }
+          return h;
+        };
+
+        const ordered = rows
+          .slice()
+          .sort((a, b) => {
+            const keyA = String(a.id ?? a.title ?? "");
+            const keyB = String(b.id ?? b.title ?? "");
+            return stableHash(keyA) - stableHash(keyB);
+          });
+
+        setProducts(ordered);
         setCurrentPage(1);
 
-        const loadedPages = Math.ceil(shuffled.length / itemsPerPage);
+        const loadedPages = Math.ceil(ordered.length / itemsPerPage);
         const initialVisible = [];
         for (
           let i = 1;
@@ -191,6 +207,8 @@ export default function Home() {
   }
   const maxVisible = visiblePages.length ? Math.max(...visiblePages) : 0;
 
+  const skeletons = Array.from({ length: 12 });
+
   return (
     <main className="page-root">
       <section>
@@ -210,6 +228,20 @@ export default function Home() {
       <div className={`products-expand ${expanded ? "open" : ""}`}>
         <div className="products-grid-wrapper">
           <div className="products-grid">
+            {expanded && loading && products.length === 0 && (
+              skeletons.map((_, idx) => (
+                <article key={idx} className="product-card product-card--skeleton" aria-hidden="true">
+                  <div className="product-image product-image--fixed">
+                    <div className="product-image-placeholder skeleton-block" />
+                  </div>
+                  <div className="product-info">
+                    <div className="skeleton-line skeleton-line--title" />
+                    <div className="skeleton-line skeleton-line--price" />
+                    <div className="skeleton-button" />
+                  </div>
+                </article>
+              ))
+            )}
             {hasFetched && !error && products.length === 0 && (
               <div style={{ padding: 24, color: "var(--muted)" }}>Products not found.</div>
             )}

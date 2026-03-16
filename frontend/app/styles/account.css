@@ -1,3 +1,21 @@
+.account-section.trade-in-section {
+  margin-top: 20px;
+  padding-top: 40px;
+  align-items: flex-start;
+}
+
+.account-section .img-left {
+  top: 10px;
+}
+
+.account-section .img-right {
+  bottom: 10px;
+}
+
+.account-section .trade-form-container {
+  margin-top: 90px;
+}
+
 .account-section .trade-form-container input,
 .account-section .trade-form-container select,
 .account-section .trade-form-container textarea {

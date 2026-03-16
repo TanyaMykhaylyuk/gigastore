@@ -269,12 +269,14 @@ export function AuthProvider({ children }) {
 
       lastAppliedRef.current = null;
 
-      console.info("[Auth] dispatching logout auth-changed event with reload");
-      try { window.dispatchEvent(new CustomEvent("auth-changed", { detail: { isAuthenticated: false, reload: true } })); } catch {}
-      setTimeout(() => window.location.reload(), 60);
+      console.info("[Auth] dispatching logout auth-changed event without reload");
+      try {
+        window.dispatchEvent(
+          new CustomEvent("auth-changed", { detail: { isAuthenticated: false, reload: false } })
+        );
+      } catch {}
     } catch (e) {
       console.warn("[Auth] logout error:", e);
-      try { window.location.reload(); } catch {}
     }
   };
 
