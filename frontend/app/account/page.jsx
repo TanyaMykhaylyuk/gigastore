@@ -99,20 +99,6 @@ export default function AccountPage() {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated && isLogin) {
-      const timer = setTimeout(() => {
-        const el = emailInputRef.current;
-        if (el && typeof el.focus === "function") {
-          el.focus();
-        }
-      }, 80);
-
-      return () => clearTimeout(timer);
-    }
-    return;
-  }, [isLogin, isAuthenticated]);
-
-  useEffect(() => {
     if (!token) return;
 
     const fetchProfile = async () => {
