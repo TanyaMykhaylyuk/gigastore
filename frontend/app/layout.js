@@ -1,6 +1,7 @@
 import "./styles/global.css";
 import HeaderClient from "./components/HeaderClient";
 import Footer from "./components/Footer";
+import HostingNotification from "./components/HostingNotification";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 
@@ -15,6 +16,7 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           <CartProvider>
+            <HostingNotification />
             <HeaderClient />
             {children}
             <Footer />
