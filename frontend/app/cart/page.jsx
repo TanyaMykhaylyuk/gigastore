@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import "../styles/cart.css";
 import { useCart } from "../context/CartContext";
@@ -45,6 +45,8 @@ export default function CartPage() {
   const [messageColor, setMessageColor] = useState("crimson");
   const [sending, setSending] = useState(false);
 
+  const filledForTokenRef = useRef(null);
+
   const pickField = (obj, keys) => {
     if (!obj) return "";
     for (const k of keys) {
@@ -88,28 +90,34 @@ export default function CartPage() {
       setEmail(em || "");
     };
 
-    if (token) {
-      const url = `${process.env.NEXT_PUBLIC_API_URL || ""}/auth/profile`;
-      fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-        .then(async (res) => {
-          if (!mounted) return;
-          const data = await res.json().catch(() => null);
-          if (res.ok && data?.success && data.user) {
-            fillFromUserLike(data.user);
-          } else {
-            fillFromUserLike(user || {});
-          }
-        })
-        .catch((err) => {
-          console.warn("[Cart] profile fetch failed:", err);
-          if (!mounted) return;
-          fillFromUserLike(user || {});
-        });
-
+    if (!token) {
+      filledForTokenRef.current = null;
+      fillFromUserLike(user || {});
       return () => { mounted = false; };
     }
 
-    fillFromUserLike(user || {});
+    if (filledForTokenRef.current === token) {
+      return () => { mounted = false; };
+    }
+
+    filledForTokenRef.current = token;
+    const url = `${process.env.NEXT_PUBLIC_API_URL || ""}/auth/profile`;
+    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (res) => {
+        if (!mounted) return;
+        const data = await res.json().catch(() => null);
+        if (res.ok && data?.success && data.user) {
+          fillFromUserLike(data.user);
+        } else {
+          fillFromUserLike(user || {});
+        }
+      })
+      .catch((err) => {
+        console.warn("[Cart] profile fetch failed:", err);
+        if (!mounted) return;
+        fillFromUserLike(user || {});
+      });
+
     return () => { mounted = false; };
   }, [token, user, displayName]);
 

@@ -49,16 +49,24 @@ export default function RepairPage() {
   const [messageColor, setMessageColor] = useState("crimson");
   const [sending, setSending] = useState(false);
 
+  const filledForUserKeyRef = useRef(null);
+
   useEffect(() => {
     let mounted = true;
     if (mounted) setIsLoggedIn(!!isAuthenticated);
 
     const ctxPhone = user?.phone || "";
     const ctxEmail = user?.email || "";
+    const userKey = (ctxEmail || ctxPhone || "") || "anon";
+
+    if (filledForUserKeyRef.current === userKey) {
+      return () => { mounted = false; };
+    }
+    filledForUserKeyRef.current = userKey;
 
     if (mounted) {
-      setPhone(ctxPhone);
-      setEmail(ctxEmail);
+      setPhone(ctxPhone || "");
+      setEmail(ctxEmail || "");
     }
     return () => {
       mounted = false;

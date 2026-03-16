@@ -42,7 +42,7 @@ export default function AccountPage() {
   const router = useRouter();
   const sectionRef = useRef(null);
   const emailInputRef = useRef(null);
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
 
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -58,9 +58,7 @@ export default function AccountPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [sending, setSending] = useState(false);
 
-  const { token, user, isAuthenticated, setAuthFromResponse, logout, displayName } = useAuth();
-
-  const [orders, setOrders] = useState([]);
+  const { token, user, isAuthenticated, setAuthFromResponse, logout, displayName, orders, ordersLoading, ordersFetched, refreshOrders } = useAuth();
 
   const computedName = useMemo(() => {
     if (displayName && String(displayName).trim()) return String(displayName).trim();
@@ -166,27 +164,9 @@ export default function AccountPage() {
   }, [token, logout, setAuthFromResponse]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setOrders([]);
-      return;
-    }
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || ""}/orders`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    .then(async (res) => {
-      const data = await res.json().catch(() => null);
-      if (res.ok && data?.success) {
-        setOrders(data.orders || []);
-      } else {
-        console.error("Failed to fetch orders", data);
-        setOrders([]);
-      }
-    })
-    .catch((err) => {
-      console.error("Orders fetch error:", err);
-      setOrders([]);
-    });
-  }, [isAuthenticated, token]);
+    if (!isAuthenticated || !token || ordersFetched) return;
+    refreshOrders();
+  }, [isAuthenticated, token, ordersFetched, refreshOrders]);
 
   const handleChange = (e) => {
     setFormData((s) => ({ ...s, [e.target.name]: e.target.value }));
@@ -344,7 +324,9 @@ export default function AccountPage() {
             </div>
 
             <div className="orders-scroll" role="list" aria-label="Your orders">
-              {orders.length > 0 ? (
+              {!ordersFetched || ordersLoading ? (
+                <div style={{ padding: 12 }}>Searching for orders...</div>
+              ) : orders.length > 0 ? (
                 orders.map(order => (
                   <div key={order.id} className="order-card" role="listitem">
                     <div className="order-meta">Order #{order.id} — {new Date(order.created_at).toLocaleString()}</div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, useState, useEffect, useRef } from "react";
+import React, { createContext, useContext, useMemo, useState, useEffect, useRef, useCallback } from "react";
 
 const AuthContext = createContext(null);
 
@@ -56,7 +56,9 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState({ firstName: "", lastName: "", phone: "", email: "" });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersFetched, setOrdersFetched] = useState(false);
 
   const lastAppliedRef = useRef(null);
 
@@ -237,7 +239,6 @@ export function AuthProvider({ children }) {
       }
 
       setIsAuthenticated(true);
-      setShowWelcome(true);
 
       console.info("[Auth] authentication completed, dispatching auth-changed event");
       try { window.dispatchEvent(new CustomEvent("auth-changed", { detail: { isAuthenticated: true } })); } catch {}
@@ -252,14 +253,14 @@ export function AuthProvider({ children }) {
       setToken(null);
       setUser({ firstName: "", lastName: "", phone: "", email: "" });
       setIsAuthenticated(false);
-      setShowWelcome(false);
+      setOrders([]);
+      setOrdersFetched(false);
 
       if (typeof window !== 'undefined') {
         try {
           localStorage.removeItem("token");
           localStorage.removeItem("giga_user");
           localStorage.removeItem("giga_user_firstName");
-          localStorage.removeItem("giga_show_welcome");
           console.info("[Auth] cleared localStorage auth keys");
         } catch (e) {
           console.warn("[Auth] error clearing storage:", e);
@@ -290,14 +291,6 @@ export function AuthProvider({ children }) {
     });
   };
 
-  const triggerWelcome = () => setShowWelcome(true);
-  const clearWelcome = () => {
-    setShowWelcome(false);
-    if (typeof window !== 'undefined') {
-      try { localStorage.removeItem("giga_show_welcome"); } catch {}
-    }
-  };
-
   const getDisplayName = (u) => {
     if (!u) return "";
     const f = (s) => (typeof s === "string" ? s.trim() : "");
@@ -313,9 +306,38 @@ export function AuthProvider({ children }) {
 
   const displayName = useMemo(() => getDisplayName(user), [user]);
 
+  const refreshOrders = useCallback(() => {
+    if (!token) return;
+    setOrdersLoading(true);
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || ""}/orders`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(async (res) => {
+        const data = await res.json().catch(() => null);
+        if (res.ok && data?.success) {
+          setOrders(data.orders || []);
+        } else {
+          setOrders([]);
+        }
+      })
+      .catch(() => setOrders([]))
+      .finally(() => {
+        setOrdersLoading(false);
+        setOrdersFetched(true);
+      });
+  }, [token]);
+
+  useEffect(() => {
+    const onOrdersNeedRefresh = () => {
+      if (token) refreshOrders();
+    };
+    window.addEventListener("orders-need-refresh", onOrdersNeedRefresh);
+    return () => window.removeEventListener("orders-need-refresh", onOrdersNeedRefresh);
+  }, [token, refreshOrders]);
+
   const value = useMemo(
-    () => ({ token, user, isAuthenticated, setAuthFromResponse, logout, setUserField, showWelcome, triggerWelcome, clearWelcome, displayName }),
-    [token, user, isAuthenticated, showWelcome, displayName]
+    () => ({ token, user, isAuthenticated, setAuthFromResponse, logout, setUserField, displayName, orders, ordersLoading, ordersFetched, refreshOrders }),
+    [token, user, isAuthenticated, displayName, orders, ordersLoading, ordersFetched, refreshOrders]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
