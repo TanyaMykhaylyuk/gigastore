@@ -20,8 +20,8 @@
 .account-section .trade-form-container select,
 .account-section .trade-form-container textarea {
   width: 100%;
-  padding: 12px;
-  margin-top: 8px;
+  padding: 10px;
+  margin-top: 6px;
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.06);
   background: rgba(255,255,255,0.02);
@@ -33,17 +33,18 @@
 .account-section .trade-form-container label {
   display: block;
   font-weight: 700;
-  margin-top: 12px;
+  margin-top: 10px;
   text-align: left;
 }
 
 .account-section .trade-form-container form {
   display: flex;
   flex-direction: column;
+  padding-bottom: 8px;
 }
 
 .account-section .trade-form-container .submit-btn {
-  margin-top: 18px;
+  margin-top: 16px;
   align-self: stretch;
   padding: 12px 18px;
   font-weight: 800;

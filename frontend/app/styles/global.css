@@ -752,3 +752,46 @@ body {
   .trade-in-section .img-left { left: -6px; top: 26px; }
   .trade-in-section .img-right { right: -6px; bottom: 18px; }
 }
+
+.hosting-notification {
+  position: fixed;
+  top: 90px;
+  left: 20px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid var(--neon);
+  border-radius: 12px;
+  padding: 16px 20px;
+  max-width: 400px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--white);
+  box-shadow: 0 4px 20px rgba(0, 140, 255, 0.4), 0 0 30px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  pointer-events: none;
+}
+
+.hosting-notification.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hosting-notification__highlight {
+  color: #ffa500;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(255, 165, 0, 0.6);
+}
+
+@media (max-width: 640px) {
+  .hosting-notification {
+    top: 70px;
+    left: 10px;
+    right: 10px;
+    max-width: none;
+    font-size: 13px;
+    padding: 12px 16px;
+  }
+}
