@@ -69,7 +69,6 @@ export default function TradeInSection() {
 
     if (!token) {
       filledForTokenRef.current = null;
-      fillFromUserLike(user || {});
       return () => {
         mounted = false;
       };

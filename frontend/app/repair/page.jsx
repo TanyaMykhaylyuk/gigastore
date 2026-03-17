@@ -55,6 +55,17 @@ export default function RepairPage() {
     let mounted = true;
     if (mounted) setIsLoggedIn(!!isAuthenticated);
 
+    if (!isAuthenticated) {
+      if (mounted) {
+        setPhone("");
+        setEmail("");
+      }
+      filledForUserKeyRef.current = null;
+      return () => {
+        mounted = false;
+      };
+    }
+
     const ctxPhone = user?.phone || "";
     const ctxEmail = user?.email || "";
     const userKey = (ctxEmail || ctxPhone || "") || "anon";
@@ -114,7 +125,6 @@ export default function RepairPage() {
     const errors = validateRepairClient();
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      setMessage("Please fix form errors.");
       setMessageColor("crimson");
       return;
     }

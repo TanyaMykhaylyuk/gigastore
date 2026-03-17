@@ -61,7 +61,8 @@ export default function CartPage() {
 
   useEffect(() => {
     let mounted = true;
-    setIsLoggedIn(!!token);
+    const loggedIn = !!token;
+    setIsLoggedIn(loggedIn);
 
     const fillFromUserLike = (u) => {
       if (!mounted) return;
@@ -90,9 +91,8 @@ export default function CartPage() {
       setEmail(em || "");
     };
 
-    if (!token) {
+    if (!loggedIn) {
       filledForTokenRef.current = null;
-      fillFromUserLike(user || {});
       return () => { mounted = false; };
     }
 
@@ -156,7 +156,6 @@ export default function CartPage() {
     const errors = validateCartClient();
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      setMessage("Please fix form errors.");
       setMessageColor("crimson");
       return;
     }
