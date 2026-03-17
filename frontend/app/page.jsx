@@ -151,6 +151,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!expanded) return;
+    if (!hasFetched) return;
     const loadedPages = Math.ceil(products.length / itemsPerPage);
     if (currentPage > loadedPages) {
       loadPage(currentPage).then((ok) => {
@@ -162,7 +163,7 @@ export default function Home() {
         }
       });
     }
-  }, [currentPage, expanded, products.length]);
+  }, [currentPage, expanded, products.length, hasFetched]);
 
   const start = (currentPage - 1) * itemsPerPage;
   const pageProducts = products.slice(start, start + itemsPerPage);
