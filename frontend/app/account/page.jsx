@@ -198,7 +198,7 @@ export default function AccountPage() {
     const errors = validateRegisterClient();
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      setMessage("Please fix form errors.");
+      setMessage("");
       return;
     }
 
@@ -252,7 +252,7 @@ export default function AccountPage() {
     const errors = validateLoginClient();
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      setMessage("Please fix form errors.");
+      setMessage("");
       return;
     }
 
@@ -397,7 +397,7 @@ export default function AccountPage() {
                 </button>
               </form>
             ) : (
-              <form onSubmit={handleRegister} noValidate>
+              <form onSubmit={handleRegister} noValidate className="register-form">
                 <label>
                   First Name:<br />
                   <input name="firstName" value={formData.firstName} onChange={handleChange} required />
