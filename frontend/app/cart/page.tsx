@@ -40,7 +40,7 @@ export default function CartPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
 
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
   const [messageColor, setMessageColor] = useState("crimson");
   const [sending, setSending] = useState(false);
@@ -122,7 +122,7 @@ export default function CartPage() {
   }, [token, user, displayName]);
 
   const validateCartClient = () => {
-    const errors = {};
+    const errors: Record<string, string> = {};
     if (!address.trim()) errors.address = "Shipping address is required.";
     if (address.length > 500) errors.address = "Address is too long.";
     if (!firstName.trim()) errors.firstName = "First name is required.";

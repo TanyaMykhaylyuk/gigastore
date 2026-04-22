@@ -1,8 +1,14 @@
 import CatalogClient from "./CatalogClient";
 
-export default async function CatalogPage({ searchParams }) {
+export const dynamic = "force-dynamic";
+
+type CatalogPageProps = {
+  searchParams?: Record<string, string | string[] | undefined>;
+};
+
+export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   try {
-    const params = await searchParams;
+    const params = searchParams;
     const category = params?.category ? String(params.category) : "";
 
     const q = new URLSearchParams();

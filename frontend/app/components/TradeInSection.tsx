@@ -19,7 +19,7 @@ export default function TradeInSection() {
     technicalCondition: "working",
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [serverMessage, setServerMessage] = useState(null);
@@ -134,7 +134,7 @@ export default function TradeInSection() {
   };
 
   const validate = (data) => {
-    const e = {};
+    const e: Record<string, string> = {};
     if (!data.firstName?.trim()) e.firstName = "First name is required.";
     else if (data.firstName.length > 100) e.firstName = "First name is too long.";
     if (!data.lastName?.trim()) e.lastName = "Last name is required.";
@@ -171,7 +171,7 @@ export default function TradeInSection() {
     setErrors(v);
     if (Object.keys(v).length > 0) {
       const first = Object.keys(v)[0];
-      const el = document.querySelector(`[name="${first}"]`);
+      const el = document.querySelector<HTMLElement>(`[name="${first}"]`);
       if (el) el.focus();
       return;
     }

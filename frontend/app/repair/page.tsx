@@ -44,7 +44,7 @@ export default function RepairPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [requestPlaced, setRequestPlaced] = useState(false);
 
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
   const [messageColor, setMessageColor] = useState("crimson");
   const [sending, setSending] = useState(false);
@@ -98,7 +98,7 @@ export default function RepairPage() {
   };
 
   const validateRepairClient = () => {
-    const errors = {};
+    const errors: Record<string, string> = {};
     const selectedDevices = Object.entries(devices).filter(([_, val]) => val);
     if (selectedDevices.length === 0) errors.devices = "Please select at least one device.";
     if (!model.trim()) errors.model = "Device model is required.";
@@ -151,7 +151,7 @@ export default function RepairPage() {
         body: JSON.stringify(requestData),
       });
 
-      let data = {};
+      let data: any = {};
       try {
         data = await res.json();
       } catch (err) {

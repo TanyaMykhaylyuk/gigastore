@@ -1,13 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
 
 export default function OrderSuccess() {
   const { clearCart } = useCart();
-  const searchParams = useSearchParams();
-  const sessionId = searchParams?.get("session_id");
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      setSessionId(params.get("session_id"));
+    } catch {
+      setSessionId(null);
+    }
+  }, []);
 
   useEffect(() => {
     try {

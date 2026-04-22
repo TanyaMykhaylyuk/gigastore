@@ -55,7 +55,7 @@ export default function AccountPage() {
   });
   const [message, setMessage] = useState("");
   const [messageColor, setMessageColor] = useState("crimson");
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
 
   const { token, user, isAuthenticated, setAuthFromResponse, logout, displayName, orders, ordersLoading, ordersFetched, refreshOrders } = useAuth();
@@ -173,7 +173,7 @@ export default function AccountPage() {
   };
 
   const validateRegisterClient = () => {
-    const errors = {};
+    const errors: Record<string, string> = {};
     if (!formData.firstName.trim()) errors.firstName = "First name is required.";
     if (!formData.lastName.trim()) errors.lastName = "Last name is required.";
     if (!formData.email.trim()) errors.email = "Email is required.";
@@ -235,7 +235,7 @@ export default function AccountPage() {
   };
 
   const validateLoginClient = () => {
-    const errors = {};
+    const errors: Record<string, string> = {};
     if (!formData.email.trim()) errors.email = "Email is required.";
     else {
       const em = validateEmail(formData.email);
