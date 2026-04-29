@@ -104,9 +104,9 @@ export default function ProductCard({ product }) {
             style={{
               width: "100%",
               maxWidth: 980,
-              background: "#0b0b0b",
+              background: "#1e1e1e",
               borderRadius: 12,
-              overflow: "visible",
+              overflow: "hidden",
               boxShadow: "0 20px 40px rgba(0,0,0,0.6)",
               border: "1px solid rgba(255,255,255,0.04)",
               position: "relative",
